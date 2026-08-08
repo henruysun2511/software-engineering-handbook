@@ -7,37 +7,39 @@
 ## Mục lục
 
 - [Giới thiệu](#giới-thiệu)
-- [2. Kiến thức](#2-kiến-thức)
-  - [2.1. Kiểu dữ liệu và biến (Type System)](#21-kiểu-dữ-liệu-và-biến-type-system)
-  - [2.2. Lập trình hướng đối tượng (OOP) trong Java](#22-lập-trình-hướng-đối-tượng-oop-trong-java)
-- [3. Minh họa](#3-minh-họa)
-- [4. Ví dụ Code: Hệ thống quản lý đơn hàng (mini)](#4-ví-dụ-code-hệ-thống-quản-lý-đơn-hàng-mini)
-- [5. So sánh: Constructor Injection vs Field Injection (áp dụng nguyên lý OOP)](#5-so-sánh-constructor-injection-vs-field-injection-áp-dụng-nguyên-lý-oop)
-- [6. Best Practices (tổng hợp Chương 1)](#6-best-practices-tổng-hợp-chương-1)
-- [7. Anti-patterns](#7-anti-patterns)
-- [8. Bài tập](#8-bài-tập)
-- [9. Tổng kết](#9-tổng-kết)
-- [10. Generics](#10-generics)
-  - [10.1. Khái niệm & Tại sao cần](#101-khái-niệm-tại-sao-cần)
-- [11. Collection Framework](#11-collection-framework)
-  - [11.1. Tổng quan kiến trúc](#111-tổng-quan-kiến-trúc)
-  - [11.2. List: ArrayList vs LinkedList](#112-list-arraylist-vs-linkedlist)
-  - [11.3. Set: HashSet vs LinkedHashSet vs TreeSet](#113-set-hashset-vs-linkedhashset-vs-treeset)
-  - [11.4. Map: HashMap vs LinkedHashMap vs TreeMap](#114-map-hashmap-vs-linkedhashmap-vs-treemap)
-- [12. Exception Handling](#12-exception-handling)
-  - [12.1. Checked vs Unchecked Exception](#121-checked-vs-unchecked-exception)
-- [13. Java 8+ Features: Lambda, Stream API, Optional, Functional Interface](#13-java-8-features-lambda-stream-api-optional-functional-interface)
-  - [13.1. Functional Interface & Lambda Expression](#131-functional-interface-lambda-expression)
-  - [13.2. Stream API](#132-stream-api)
-  - [13.3. Optional](#133-optional)
-- [14. Multithreading & Concurrency cơ bản](#14-multithreading-concurrency-cơ-bản)
-  - [14.1. Khác biệt cốt lõi so với Node.js Event Loop](#141-khác-biệt-cốt-lõi-so-với-nodejs-event-loop)
-  - [14.2. Thread, Runnable, ExecutorService](#142-thread-runnable-executorservice)
-  - [14.3. synchronized, volatile, và race condition](#143-synchronized-volatile-và-race-condition)
-  - [14.4. CompletableFuture — lập trình bất đồng bộ kiểu Java](#144-completablefuture-lập-trình-bất-đồng-bộ-kiểu-java)
-- [15. I/O cơ bản](#15-io-cơ-bản)
-- [16. Bài tập tổng hợp Chương 1](#16-bài-tập-tổng-hợp-chương-1)
-- [17. Tổng kết Chương 1](#17-tổng-kết-chương-1)
+- [1.1. Kiểu dữ liệu và biến (Type System)](#11-kiểu-dữ-liệu-và-biến-type-system)
+- [1.2. Lập trình hướng đối tượng (OOP) trong Java](#12-lập-trình-hướng-đối-tượng-oop-trong-java)
+  - [1.2.1. Encapsulation (Đóng gói)](#121-encapsulation-đóng-gói)
+  - [1.2.2. Inheritance (Kế thừa) & Polymorphism (Đa hình)](#122-inheritance-kế-thừa-polymorphism-đa-hình)
+  - [1.2.3. Abstraction: Interface vs Abstract Class](#123-abstraction-interface-vs-abstract-class)
+- [1.3. Minh họa](#13-minh-họa)
+- [1.4. Ví dụ Code: Hệ thống quản lý đơn hàng (mini)](#14-ví-dụ-code-hệ-thống-quản-lý-đơn-hàng-mini)
+- [1.5. So sánh: Constructor Injection vs Field Injection (áp dụng nguyên lý OOP)](#15-so-sánh-constructor-injection-vs-field-injection-áp-dụng-nguyên-lý-oop)
+- [1.6. Best Practices (tổng hợp Chương 1)](#16-best-practices-tổng-hợp-chương-1)
+- [1.7. Anti-patterns](#17-anti-patterns)
+- [1.8. Bài tập](#18-bài-tập)
+- [1.9. Tổng kết](#19-tổng-kết)
+- [1.10. Generics](#110-generics)
+  - [1.10.1. Khái niệm & Tại sao cần](#1101-khái-niệm-tại-sao-cần)
+- [1.11. Collection Framework](#111-collection-framework)
+  - [1.11.1. Tổng quan kiến trúc](#1111-tổng-quan-kiến-trúc)
+  - [1.11.2. List: ArrayList vs LinkedList](#1112-list-arraylist-vs-linkedlist)
+  - [1.11.3. Set: HashSet vs LinkedHashSet vs TreeSet](#1113-set-hashset-vs-linkedhashset-vs-treeset)
+  - [1.11.4. Map: HashMap vs LinkedHashMap vs TreeMap](#1114-map-hashmap-vs-linkedhashmap-vs-treemap)
+- [1.12. Exception Handling](#112-exception-handling)
+  - [1.12.1. Checked vs Unchecked Exception](#1121-checked-vs-unchecked-exception)
+- [1.13. Java 8+ Features: Lambda, Stream API, Optional, Functional Interface](#113-java-8-features-lambda-stream-api-optional-functional-interface)
+  - [1.13.1. Functional Interface & Lambda Expression](#1131-functional-interface-lambda-expression)
+  - [1.13.2. Stream API](#1132-stream-api)
+  - [1.13.3. Optional](#1133-optional)
+- [1.14. Multithreading & Concurrency cơ bản](#114-multithreading-concurrency-cơ-bản)
+  - [1.14.1. Khác biệt cốt lõi so với Node.js Event Loop](#1141-khác-biệt-cốt-lõi-so-với-nodejs-event-loop)
+  - [1.14.2. Thread, Runnable, ExecutorService](#1142-thread-runnable-executorservice)
+  - [1.14.3. synchronized, volatile, và race condition](#1143-synchronized-volatile-và-race-condition)
+  - [1.14.4. CompletableFuture — lập trình bất đồng bộ kiểu Java](#1144-completablefuture-lập-trình-bất-đồng-bộ-kiểu-java)
+- [1.15. I/O cơ bản](#115-io-cơ-bản)
+- [1.16. Bài tập tổng hợp Chương 1](#116-bài-tập-tổng-hợp-chương-1)
+- [1.17. Tổng kết Chương 1](#117-tổng-kết-chương-1)
 
 ## Giới thiệu
 
@@ -52,9 +54,8 @@ Chương này sẽ không dạy bạn "lập trình là gì" — bạn đã bi�
 
 ---
 
-## 2. Kiến thức
 
-### 2.1. Kiểu dữ liệu và biến (Type System)
+## 1.1. Kiểu dữ liệu và biến (Type System)
 
 **Khái niệm**: Java có 2 nhóm kiểu dữ liệu:
 - **Primitive types**: `byte, short, int, long, float, double, boolean, char` — lưu trực tiếp giá trị trên stack (hoặc trong object nếu là field), không phải object, không có method, không thể `null`.
@@ -103,11 +104,11 @@ int result = count + 1; // NullPointerException lúc runtime, compiler KHÔNG b�
 
 ---
 
-### 2.2. Lập trình hướng đối tượng (OOP) trong Java
+## 1.2. Lập trình hướng đối tượng (OOP) trong Java
 
 Đây là phần **quan trọng nhất** để hiểu Spring Boot, vì toàn bộ Spring Framework được xây dựng trên nguyên lý OOP + Design Pattern.
 
-#### 2.2.1. Encapsulation (Đóng gói)
+### 1.2.1. Encapsulation (Đóng gói)
 
 **Khái niệm**: Ẩn dữ liệu nội bộ của object (field) khỏi thế giới bên ngoài, chỉ cho phép truy cập/thay đổi thông qua method công khai (getter/setter, hoặc method nghiệp vụ).
 
@@ -152,7 +153,7 @@ public class Order {
 
 **Anti-pattern**: "Anemic Domain Model" — class chỉ có toàn `private` field + getter/setter trần, không có method nghiệp vụ nào, mọi logic đẩy hết sang Service layer. Đây là pattern rất phổ biến (và bị nhiều Senior Java Developer phê phán) vì nó phá vỡ nguyên lý encapsulation, biến Entity thành "túi dữ liệu" (data bag) thay vì object thực sự.
 
-#### 2.2.2. Inheritance (Kế thừa) & Polymorphism (Đa hình)
+### 1.2.2. Inheritance (Kế thừa) & Polymorphism (Đa hình)
 
 **Khái niệm**: Kế thừa cho phép 1 class (subclass) tái sử dụng field/method từ 1 class khác (superclass) qua từ khóa `extends`. Đa hình cho phép gọi cùng 1 method nhưng hành vi thực thi khác nhau tùy vào object thực sự lúc runtime (runtime polymorphism qua **method overriding**), hoặc cùng tên method nhưng khác tham số (compile-time polymorphism qua **method overloading**).
 
@@ -219,7 +220,7 @@ processor.process(request); // JVM tự chọn đúng executePayment() lúc runt
 - Giới hạn độ sâu kế thừa tối đa 2-3 cấp. Kế thừa sâu (`A extends B extends C extends D`) cực kỳ khó maintain.
 - Đánh dấu method/class là `final` nếu không có ý định cho override/kế thừa thêm — bảo vệ tính đúng đắn của logic.
 
-#### 2.2.3. Abstraction: Interface vs Abstract Class
+### 1.2.3. Abstraction: Interface vs Abstract Class
 
 **Khái niệm**:
 - **Interface**: hợp đồng thuần túy — khai báo method signature, mọi implementing class phải cung cấp implementation. Từ Java 8, interface có thể có `default method` (có implementation sẵn) và `static method`.
@@ -281,7 +282,7 @@ public class InventoryServiceImpl implements InventoryService {
 
 ---
 
-## 3. Minh họa
+## 1.3. Minh họa
 
 Sơ đồ dưới thể hiện cơ chế Runtime Polymorphism — nền tảng để hiểu Dependency Injection trong Spring:
 
@@ -327,7 +328,7 @@ sequenceDiagram
 
 ---
 
-## 4. Ví dụ Code: Hệ thống quản lý đơn hàng (mini)
+## 1.4. Ví dụ Code: Hệ thống quản lý đơn hàng (mini)
 
 Ví dụ tổng hợp OOP: Encapsulation + Inheritance + Polymorphism + Interface, mô phỏng một phần nhỏ hệ thống e-commerce thực tế.
 
@@ -404,7 +405,7 @@ public class Order {
 
 ---
 
-## 5. So sánh: Constructor Injection vs Field Injection (áp dụng nguyên lý OOP)
+## 1.5. So sánh: Constructor Injection vs Field Injection (áp dụng nguyên lý OOP)
 
 Đây là ví dụ áp dụng OOP + Encapsulation trong bối cảnh Spring — sẽ học sâu ở Chương 3, nhưng cần nắm nguyên lý ngay từ Chương 1 vì nó dựa hoàn toàn vào `final` field + constructor.
 
@@ -439,7 +440,7 @@ public class OrderServiceBad {
 
 ---
 
-## 6. Best Practices (tổng hợp Chương 1)
+## 1.6. Best Practices (tổng hợp Chương 1)
 
 - Luôn ưu tiên `private` field, `final` khi có thể, method nghiệp vụ thay vì setter trần.
 - Ưu tiên **composition over inheritance** — chỉ kế thừa khi có quan hệ IS-A rõ ràng.
@@ -448,7 +449,7 @@ public class OrderServiceBad {
 - Method override luôn có `@Override`.
 - Trả về **defensive copy** cho Collection field trong getter, tránh lộ tham chiếu nội bộ.
 
-## 7. Anti-patterns
+## 1.7. Anti-patterns
 
 - **Anemic Domain Model**: Entity chỉ có getter/setter, không có method nghiệp vụ — logic bị đẩy hết sang Service, phá vỡ encapsulation, khó maintain khi hệ thống lớn.
 - **God Class**: 1 class ôm quá nhiều trách nhiệm (vi phạm Single Responsibility Principle).
@@ -456,18 +457,18 @@ public class OrderServiceBad {
 - **Interface cho mọi thứ** dù không có nhu cầu đa hình/mock/test thực sự — over-engineering.
 - **So sánh `==` cho reference type** thay vì `.equals()`.
 
-## 8. Bài tập
+## 1.8. Bài tập
 
 1. **Dễ**: Viết class `Product` với field `name`, `price` (dùng `BigDecimal`), đảm bảo encapsulation đúng chuẩn (constructor validate, không có setter trần cho `price`).
 2. **Trung bình**: Thiết kế interface `NotificationSender` với 2 implementation `EmailSender` và `SmsSender`. Viết class `NotificationService` nhận vào `NotificationSender` qua constructor injection và gọi `send()`.
 3. **Khó**: Áp dụng Template Method Pattern (giống ví dụ `PaymentProcessor`) để xây dựng `ReportExporter` abstract class với 2 implementation `PdfReportExporter` và `ExcelReportExporter`, trong đó bước validate dữ liệu đầu vào là chung, bước xuất file là riêng từng loại.
 
-## 9. Tổng kết
+## 1.9. Tổng kết
 
 Chương này đã trang bị nền tảng OOP thực chiến của Java — không chỉ là lý thuyết 4 tính chất, mà là cách JVM thực thi dynamic dispatch, cách chọn Interface vs Abstract Class đúng ngữ cảnh, và vì sao Constructor Injection là Best Practice bắt buộc trong Spring. Đây là nền tảng bắt buộc phải vững trước khi bước vào Generic, Collection, Stream API ở phần tiếp theo — và là nền tảng để hiểu tại sao Spring Framework thiết kế xoay quanh Interface + Dependency Injection.
-## 10. Generics
+## 1.10. Generics
 
-### 10.1. Khái niệm & Tại sao cần
+### 1.10.1. Khái niệm & Tại sao cần
 
 **Khái niệm**: Generic cho phép class/interface/method hoạt động với **kiểu dữ liệu tham số hóa** (type parameter), kiểm tra type an toàn ngay lúc **compile-time** thay vì runtime.
 
@@ -547,9 +548,9 @@ public class InventoryUtils {
 
 ---
 
-## 11. Collection Framework
+## 1.11. Collection Framework
 
-### 11.1. Tổng quan kiến trúc
+### 1.11.1. Tổng quan kiến trúc
 
 **Khái niệm**: Collection Framework là bộ interface + implementation chuẩn hóa để lưu trữ và thao tác nhóm object: `List`, `Set`, `Map`, `Queue`. Khác với JS array (vừa là list vừa là stack vừa là queue), Java tách biệt rõ ràng theo ngữ nghĩa sử dụng và **độ phức tạp thuật toán (Big-O)** của từng implementation.
 
@@ -570,7 +571,7 @@ classDiagram
     Map <|.. TreeMap
 ```
 
-### 11.2. List: ArrayList vs LinkedList
+### 1.11.2. List: ArrayList vs LinkedList
 
 | Tiêu chí | ArrayList | LinkedList |
 |---|---|---|
@@ -583,13 +584,13 @@ classDiagram
 
 **Khuyến nghị thực tế**: Dùng `ArrayList` làm mặc định trừ khi có lý do đo lường (benchmark) rõ ràng cần `LinkedList`. Trong 15 năm làm Java enterprise, việc thực sự cần `LinkedList` là rất hiếm — hầu hết use case về queue nên dùng `ArrayDeque` (nhanh hơn `LinkedList` cho thao tác queue/stack vì không có overhead node).
 
-### 11.3. Set: HashSet vs LinkedHashSet vs TreeSet
+### 1.11.3. Set: HashSet vs LinkedHashSet vs TreeSet
 
-- **HashSet**: dựa trên `HashMap` bên trong, không đảm bảo thứ tự, `add/contains/remove` trung bình O(1). Yêu cầu implement đúng `hashCode()` và `equals()` cho object tự định nghĩa (xem mục 11.5).
+- **HashSet**: dựa trên `HashMap` bên trong, không đảm bảo thứ tự, `add/contains/remove` trung bình O(1). Yêu cầu implement đúng `hashCode()` và `equals()` cho object tự định nghĩa (xem mục 1.11.4).
 - **LinkedHashSet**: giữ thứ tự chèn (insertion order), chi phí thêm một chút overhead cho linked list nội bộ.
 - **TreeSet**: tự động sắp xếp theo thứ tự tự nhiên (`Comparable`) hoặc `Comparator` truyền vào, dựa trên cấu trúc Red-Black Tree, O(log n) cho các thao tác.
 
-### 11.4. Map: HashMap vs LinkedHashMap vs TreeMap
+### 1.11.4. Map: HashMap vs LinkedHashMap vs TreeMap
 
 **Cách HashMap hoạt động bên trong**: HashMap lưu dữ liệu dưới dạng mảng các "bucket". Mỗi key được băm qua `hashCode()` để xác định bucket. Nếu 2 key khác nhau rơi vào cùng bucket (hash collision), chúng được lưu dưới dạng linked list trong bucket đó (từ Java 8, nếu 1 bucket có quá 8 phần tử, nó tự động chuyển thành Red-Black Tree để tối ưu tra cứu từ O(n) xuống O(log n)).
 
@@ -639,9 +640,9 @@ public class ProductKey {
 
 ---
 
-## 12. Exception Handling
+## 1.12. Exception Handling
 
-### 12.1. Checked vs Unchecked Exception
+### 1.12.1. Checked vs Unchecked Exception
 
 **Khái niệm**: Java có 3 loại throwable:
 - **Checked Exception** (kế thừa `Exception`, không kế thừa `RuntimeException`): compiler **bắt buộc** phải catch hoặc khai báo `throws` trong method signature. Ví dụ: `IOException`, `SQLException`.
@@ -742,9 +743,9 @@ public void processPayment(PaymentRequest request) {
 - `catch (Exception e) { e.printStackTrace(); }` — không log đúng chuẩn, mất context, không throw lại.
 - `throws Exception` trên method signature — "khai báo cho có", không cung cấp thông tin gì hữu ích cho caller.
 - Catch exception quá sớm (ở tầng Repository) làm mất thông tin lỗi gốc trước khi nó lên tới tầng xử lý phù hợp.
-## 13. Java 8+ Features: Lambda, Stream API, Optional, Functional Interface
+## 1.13. Java 8+ Features: Lambda, Stream API, Optional, Functional Interface
 
-### 13.1. Functional Interface & Lambda Expression
+### 1.13.1. Functional Interface & Lambda Expression
 
 **Khái niệm**: Functional Interface là interface chỉ có **đúng 1 abstract method** (có thể có nhiều `default`/`static` method). Lambda Expression là cú pháp ngắn gọn để tạo implementation "vô danh" (anonymous) của Functional Interface, tương tự arrow function trong JS nhưng có kiểu tĩnh.
 
@@ -767,7 +768,7 @@ public interface DiscountCalculator {
 DiscountCalculator tenPercentOff = price -> price.multiply(BigDecimal.valueOf(0.9));
 ```
 
-### 13.2. Stream API
+### 1.13.2. Stream API
 
 **Khái niệm**: Stream là một pipeline xử lý dữ liệu theo phong cách khai báo (declarative), tương tự `Array.prototype.map/filter/reduce` trong JS nhưng mạnh hơn — hỗ trợ **lazy evaluation** (chỉ thực sự chạy khi gặp terminal operation) và **parallel processing** dễ dàng.
 
@@ -839,7 +840,7 @@ public BigDecimal calculateTotalRevenueParallel(List<Order> largeOrderList) {
 
 **Anti-pattern**: Viết pipeline Stream quá dài (10+ bước liên tiếp) nhồi trong 1 statement — nên tách thành các method nhỏ có tên rõ ràng, dễ test riêng từng bước.
 
-### 13.3. Optional
+### 1.13.3. Optional
 
 **Khái niệm**: `Optional<T>` là wrapper container biểu diễn "có thể có hoặc không có giá trị" — thay thế cho việc trả về `null` và bắt buộc caller `null-check`. Về mặt triết lý, tương đương `T | undefined` trong TypeScript, nhưng Optional là 1 object thật, có method riêng (`map`, `filter`, `orElse`...).
 
@@ -895,9 +896,9 @@ Order order = maybeOrder.get(); // Nếu rỗng -> NoSuchElementException, MẤT
 
 ---
 
-## 14. Multithreading & Concurrency cơ bản
+## 1.14. Multithreading & Concurrency cơ bản
 
-### 14.1. Khác biệt cốt lõi so với Node.js Event Loop
+### 1.14.1. Khác biệt cốt lõi so với Node.js Event Loop
 
 Đây là phần **quan trọng bậc nhất** với người chuyển từ Node.js, vì mô hình concurrency của 2 nền tảng khác nhau hoàn toàn:
 
@@ -924,7 +925,7 @@ sequenceDiagram
     Note over Shared: Kết quả SAI - đáng lẽ phải là 12 (mất update từ T1)
 ```
 
-### 14.2. Thread, Runnable, ExecutorService
+### 1.14.2. Thread, Runnable, ExecutorService
 
 ```java
 // Cách cũ - tạo Thread trực tiếp (KHÔNG khuyến nghị trong production)
@@ -963,7 +964,7 @@ public class ReportGenerationService {
 }
 ```
 
-### 14.3. synchronized, volatile, và race condition
+### 1.14.3. synchronized, volatile, và race condition
 
 ```java
 // Race condition - counter không thread-safe
@@ -998,7 +999,7 @@ public class FeatureToggle {
 }
 ```
 
-### 14.4. CompletableFuture — lập trình bất đồng bộ kiểu Java
+### 1.14.4. CompletableFuture — lập trình bất đồng bộ kiểu Java
 
 **Khái niệm**: `CompletableFuture` là API bất đồng bộ hiện đại của Java, khá tương đồng về mặt tư duy với `Promise` trong JS/TypeScript.
 
@@ -1035,7 +1036,7 @@ public CompletableFuture<OrderConfirmationDTO> processOrderAsync(String orderId)
 
 ---
 
-## 15. I/O cơ bản
+## 1.15. I/O cơ bản
 
 ```java
 // Đọc file với try-with-resources (Java NIO.2 - khuyến nghị)
@@ -1061,14 +1062,14 @@ public long countLinesInLargeFile(Path filePath) throws IOException {
 
 ---
 
-## 16. Bài tập tổng hợp Chương 1
+## 1.16. Bài tập tổng hợp Chương 1
 
 1. **Dễ**: Viết method dùng Stream API để lọc danh sách `Product` có `price > 100_000` và trả về danh sách tên sản phẩm, sắp xếp theo giá giảm dần.
 2. **Trung bình**: Implement `ConcurrentHashMap<String, AtomicInteger>` để đếm số lượt truy cập API theo từng endpoint trong môi trường đa luồng, đảm bảo thread-safe.
 3. **Trung bình**: Viết `OrderRepository` giả lập (dùng `Map` trong memory) trả về `Optional<Order>`, và `OrderService` sử dụng đúng chuẩn Best Practice của Optional (không gọi `.get()` trực tiếp).
 4. **Khó**: Dùng `ExecutorService` + `CompletableFuture` xây dựng 1 method gọi song song 3 API giả lập (inventory, payment, shipping) với timeout riêng từng API, tổng hợp kết quả, xử lý trường hợp 1 trong 3 API lỗi mà không làm crash toàn bộ luồng.
 
-## 17. Tổng kết Chương 1
+## 1.17. Tổng kết Chương 1
 
 Chương 1 đã trang bị toàn bộ nền tảng Java Core cần thiết để đọc hiểu bất kỳ codebase Spring Boot enterprise nào: hệ thống kiểu dữ liệu và cạm bẫy autoboxing, 4 trụ cột OOP với trọng tâm là cách JVM thực thi dynamic dispatch, Generic với type erasure, Collection Framework với độ phức tạp thuật toán từng loại, Exception Handling theo triết lý enterprise hiện đại (ưu tiên unchecked exception), Stream API/Optional theo phong cách functional, và đặc biệt là Multithreading — khác biệt lớn nhất so với tư duy Node.js mà bạn cần "reset" lại. Chương 2 sẽ đi sâu vào các chủ đề nâng cao hơn: Design Pattern, JVM Memory Model/Garbage Collection, Reflection, và các tính năng hiện đại của Java 17-21 (Record, Sealed Class) — nền tảng trực tiếp để hiểu cách Spring Framework hoạt động "bên dưới lớp vỏ" annotation.
 

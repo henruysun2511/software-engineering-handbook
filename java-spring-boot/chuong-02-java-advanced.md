@@ -3,26 +3,31 @@
 ## Mục lục
 
 - [Giới thiệu](#giới-thiệu)
-- [2. Kiến thức](#2-kiến-thức)
-  - [2.1. Design Patterns trong Java Enterprise](#21-design-patterns-trong-java-enterprise)
-- [3. Minh họa](#3-minh-họa)
-- [4. So sánh: Khi nào dùng Pattern nào](#4-so-sánh-khi-nào-dùng-pattern-nào)
-- [5. Best Practices](#5-best-practices)
-- [6. Anti-patterns](#6-anti-patterns)
-- [7. Bài tập](#7-bài-tập)
-- [8. JVM Memory Model & Garbage Collection](#8-jvm-memory-model-garbage-collection)
-  - [8.1. Tại sao Backend Developer BẮT BUỘC phải hiểu](#81-tại-sao-backend-developer-bắt-buộc-phải-hiểu)
-  - [8.2. Cấu trúc bộ nhớ JVM](#82-cấu-trúc-bộ-nhớ-jvm)
-  - [8.3. Garbage Collection hoạt động thế nào](#83-garbage-collection-hoạt-động-thế-nào)
-  - [8.4. Memory Leak trong ứng dụng Spring Boot — nguyên nhân thực tế](#84-memory-leak-trong-ứng-dụng-spring-boot-nguyên-nhân-thực-tế)
-- [9. Reflection API & Custom Annotation](#9-reflection-api-custom-annotation)
-  - [9.1. Reflection — cơ chế thực sự đứng sau Spring](#91-reflection-cơ-chế-thực-sự-đứng-sau-spring)
-  - [9.2. Tự viết Custom Annotation](#92-tự-viết-custom-annotation)
-- [10. Record & Sealed Class (Java 17-21)](#10-record-sealed-class-java-17-21)
-  - [10.1. Record](#101-record)
-  - [10.2. Sealed Class/Interface](#102-sealed-classinterface)
-- [11. Bài tập tổng hợp Chương 2](#11-bài-tập-tổng-hợp-chương-2)
-- [12. Tổng kết Chương 2](#12-tổng-kết-chương-2)
+- [2.1. Design Patterns trong Java Enterprise](#21-design-patterns-trong-java-enterprise)
+  - [2.1.1. Singleton Pattern](#211-singleton-pattern)
+  - [2.1.2. Factory Pattern](#212-factory-pattern)
+  - [2.1.3. Strategy Pattern](#213-strategy-pattern)
+  - [2.1.4. Builder Pattern](#214-builder-pattern)
+  - [2.1.5. Observer Pattern](#215-observer-pattern)
+  - [2.1.6. Template Method Pattern](#216-template-method-pattern)
+- [2.2. Minh họa](#22-minh-họa)
+- [2.3. So sánh: Khi nào dùng Pattern nào](#23-so-sánh-khi-nào-dùng-pattern-nào)
+- [2.4. Best Practices](#24-best-practices)
+- [2.5. Anti-patterns](#25-anti-patterns)
+- [2.6. Bài tập](#26-bài-tập)
+- [2.7. JVM Memory Model & Garbage Collection](#27-jvm-memory-model-garbage-collection)
+  - [2.7.1. Tại sao Backend Developer BẮT BUỘC phải hiểu](#271-tại-sao-backend-developer-bắt-buộc-phải-hiểu)
+  - [2.7.2. Cấu trúc bộ nhớ JVM](#272-cấu-trúc-bộ-nhớ-jvm)
+  - [2.7.3. Garbage Collection hoạt động thế nào](#273-garbage-collection-hoạt-động-thế-nào)
+  - [2.7.4. Memory Leak trong ứng dụng Spring Boot — nguyên nhân thực tế](#274-memory-leak-trong-ứng-dụng-spring-boot-nguyên-nhân-thực-tế)
+- [2.8. Reflection API & Custom Annotation](#28-reflection-api-custom-annotation)
+  - [2.8.1. Reflection — cơ chế thực sự đứng sau Spring](#281-reflection-cơ-chế-thực-sự-đứng-sau-spring)
+  - [2.8.2. Tự viết Custom Annotation](#282-tự-viết-custom-annotation)
+- [2.9. Record & Sealed Class (Java 17-21)](#29-record-sealed-class-java-17-21)
+  - [2.9.1. Record](#291-record)
+  - [2.9.2. Sealed Class/Interface](#292-sealed-classinterface)
+- [2.10. Bài tập tổng hợp Chương 2](#210-bài-tập-tổng-hợp-chương-2)
+- [2.11. Tổng kết Chương 2](#211-tổng-kết-chương-2)
 
 ## Giới thiệu
 
@@ -37,13 +42,11 @@ Nếu Chương 1 là "ngữ pháp" của Java, Chương 2 là "tại sao Spring 
 
 ---
 
-## 2. Kiến thức
-
-### 2.1. Design Patterns trong Java Enterprise
+## 2.1. Design Patterns trong Java Enterprise
 
 Design Pattern không phải là "công thức phải học thuộc" — mà là **ngôn ngữ chung** giúp team enterprise trao đổi ý tưởng thiết kế nhanh chóng ("dùng Strategy Pattern ở đây" truyền tải nhiều thông tin hơn giải thích dài dòng). Dưới đây là các pattern **thực sự xuất hiện trong Spring Framework và codebase enterprise hàng ngày** — không liệt kê lý thuyết suông.
 
-#### 2.1.1. Singleton Pattern
+### 2.1.1. Singleton Pattern
 
 **Khái niệm**: Đảm bảo 1 class chỉ có **đúng 1 instance** trong toàn bộ ứng dụng, cung cấp 1 điểm truy cập toàn cục.
 
@@ -85,7 +88,7 @@ public class OrderService {
 
 **Best Practices**: Trong Spring, Bean Singleton **không nên có mutable field** trừ khi được đồng bộ hóa tường minh (`AtomicInteger`, `synchronized`) hoặc dùng `ThreadLocal` khi state cần riêng biệt theo từng request/thread.
 
-#### 2.1.2. Factory Pattern
+### 2.1.2. Factory Pattern
 
 **Khái niệm**: Đóng gói logic khởi tạo object phức tạp vào 1 method/class riêng, che giấu chi tiết implementation khỏi caller.
 
@@ -116,7 +119,7 @@ public class PaymentProcessorFactory {
 
 Đây là kỹ thuật **cực kỳ phổ biến trong enterprise Spring**: thay vì viết `if-else`/`switch` để chọn implementation, đăng ký tất cả implementation làm Bean và để Spring tự động gom vào `List<T>` hoặc `Map<String, T>`, sau đó Factory chọn đúng cái cần dùng.
 
-#### 2.1.3. Strategy Pattern
+### 2.1.3. Strategy Pattern
 
 **Khái niệm**: Định nghĩa họ các thuật toán/hành vi có thể hoán đổi cho nhau, đóng gói mỗi thuật toán vào 1 class riêng, cho phép thay đổi hành vi lúc runtime mà không sửa code caller.
 
@@ -162,7 +165,7 @@ public class CheckoutService {
 }
 ```
 
-#### 2.1.4. Builder Pattern
+### 2.1.4. Builder Pattern
 
 **Khái niệm**: Tách quá trình xây dựng object phức tạp (nhiều field, nhiều field optional) khỏi biểu diễn cuối cùng, cho phép tạo object qua chuỗi method gọi liên tiếp (method chaining), dễ đọc hơn constructor có 10 tham số.
 
@@ -221,9 +224,9 @@ ProductSearchCriteria criteria = ProductSearchCriteria.builder()
         .build();
 ```
 
-**Lưu ý thực tế**: Từ Java 14+ (chính thức ổn định Java 16), **Record** (học ở mục 2.4) đã thay thế phần lớn nhu cầu dùng Builder cho các DTO đơn giản bất biến. Builder Pattern vẫn cần thiết khi object có **nhiều field optional** hoặc logic validate phức tạp lúc xây dựng.
+**Lưu ý thực tế**: Từ Java 14+ (chính thức ổn định Java 16), **Record** (học ở mục 2.9) đã thay thế phần lớn nhu cầu dùng Builder cho các DTO đơn giản bất biến. Builder Pattern vẫn cần thiết khi object có **nhiều field optional** hoặc logic validate phức tạp lúc xây dựng.
 
-#### 2.1.5. Observer Pattern
+### 2.1.5. Observer Pattern
 
 **Khái niệm**: 1 object (Subject) duy trì danh sách các đối tượng phụ thuộc (Observer) và tự động thông báo cho chúng khi có sự kiện xảy ra.
 
@@ -287,7 +290,7 @@ public class InventoryUpdateListener {
 | Xử lý lỗi | Rõ ràng, dễ trace (exception bubble ngay) | Phức tạp hơn — lỗi trong Listener cần xử lý riêng, đặc biệt với `@Async` |
 | Transaction | Cùng transaction nếu không tách riêng | Cần cân nhắc `@TransactionalEventListener` để đảm bảo đúng thời điểm (sau khi commit) |
 
-#### 2.1.6. Template Method Pattern
+### 2.1.6. Template Method Pattern
 
 Đã minh họa chi tiết ở Chương 1 (`PaymentProcessor`). Đây là pattern nền tảng cho `JdbcTemplate`, `RestTemplate`, `TransactionTemplate` — các class "Template" trong Spring đều theo nguyên lý: định nghĩa sẵn khung xử lý (mở connection, xử lý exception, đóng connection), chỉ để phần logic nghiệp vụ cụ thể cho caller cung cấp qua callback/lambda.
 
@@ -306,7 +309,7 @@ public List<Order> findHighValueOrders(BigDecimal threshold) {
 
 ---
 
-## 3. Minh họa
+## 2.2. Minh họa
 
 ```mermaid
 flowchart TD
@@ -321,7 +324,7 @@ flowchart TD
 
 ---
 
-## 4. So sánh: Khi nào dùng Pattern nào
+## 2.3. So sánh: Khi nào dùng Pattern nào
 
 | Vấn đề cần giải quyết | Pattern phù hợp |
 |---|---|
@@ -334,31 +337,31 @@ flowchart TD
 
 ---
 
-## 5. Best Practices
+## 2.4. Best Practices
 
 - Không "nhét" pattern vào code chỉ để "cho giống enterprise" — chỉ áp dụng khi thực sự giải quyết vấn đề phức tạp hóa/coupling.
 - Ưu tiên để **Spring Container quản lý Singleton** thay vì tự viết Singleton Pattern thủ công trong ứng dụng Spring Boot.
 - Dùng Strategy + `Map<String, T>` injection thay cho chuỗi `if-else`/`switch` dài khi có nhiều implementation cùng interface.
 - Cân nhắc Record thay Builder cho DTO đơn giản, bất biến, không có field optional phức tạp.
 
-## 6. Anti-patterns
+## 2.5. Anti-patterns
 
 - **Tự viết Singleton thủ công trong code Spring** (dùng static field) thay vì để Spring quản lý — phá vỡ khả năng test, khả năng mock.
 - **Lạm dụng Factory** khi chỉ có 1 implementation duy nhất — over-engineering không cần thiết.
 - **Observer Pattern cho logic đồng bộ bắt buộc phải thành công cùng lúc** (VD: trừ tiền tài khoản) — event bất đồng bộ không phù hợp cho nghiệp vụ cần tính nhất quán (consistency) ngay lập tức, dễ dẫn tới lỗi nghiệp vụ khó phát hiện.
 
-## 7. Bài tập
+## 2.6. Bài tập
 
 1. **Dễ**: Refactor 1 method có `switch-case` chọn 3 loại `DiscountStrategy` (VIP, Regular, New Customer) thành Strategy Pattern dùng Spring `Map<String, T>` injection.
 2. **Trung bình**: Viết `NotificationEvent` + 2 Listener (`EmailListener`, `SmsListener`) dùng `ApplicationEventPublisher`, đảm bảo Listener không làm chậm luồng chính (dùng `@Async`).
 3. **Khó**: Thiết kế `ReportBuilder` (Builder Pattern) cho việc tạo báo cáo doanh thu có nhiều tham số optional (khoảng thời gian, nhóm theo ngày/tháng, filter theo khu vực, có/không kèm biểu đồ), đảm bảo build() validate được tổ hợp tham số không hợp lệ.
-## 8. JVM Memory Model & Garbage Collection
+## 2.7. JVM Memory Model & Garbage Collection
 
-### 8.1. Tại sao Backend Developer BẮT BUỘC phải hiểu
+### 2.7.1. Tại sao Backend Developer BẮT BUỘC phải hiểu
 
 Trong Node.js, bạn hiếm khi phải nghĩ về memory layout — V8 tự lo. Nhưng trong môi trường Java enterprise chạy production 24/7, việc hiểu JVM Memory Model là kỹ năng **phân biệt Junior và Senior**: đọc được `OutOfMemoryError`, tối ưu GC pause time (ảnh hưởng trực tiếp tới latency API), tránh Memory Leak trong code Spring.
 
-### 8.2. Cấu trúc bộ nhớ JVM
+### 2.7.2. Cấu trúc bộ nhớ JVM
 
 ```mermaid
 flowchart TB
@@ -387,7 +390,7 @@ flowchart TB
 
 **Metaspace** (thay thế PermGen từ Java 8): lưu metadata của class đã load (bytecode method, thông tin field...) — nằm ngoài Heap, tự động mở rộng, ít khi là nguồn gây `OutOfMemoryError` trừ khi ứng dụng load động cực nhiều class (VD: dùng nhiều class loader tùy biến).
 
-### 8.3. Garbage Collection hoạt động thế nào
+### 2.7.3. Garbage Collection hoạt động thế nào
 
 **Nguyên lý cơ bản**: GC xác định object nào **không còn reachable** (không còn bất kỳ tham chiếu nào từ GC Root — bao gồm static field, local variable đang active trên stack, JNI reference) và giải phóng bộ nhớ của chúng.
 
@@ -410,7 +413,7 @@ flowchart LR
 | **Parallel GC** | Ưu tiên throughput tối đa, chấp nhận pause time dài hơn | Batch processing, không nhạy cảm với độ trễ |
 | **Serial GC** | Đơn giản, chỉ 1 thread GC | Ứng dụng nhỏ, môi trường container giới hạn tài nguyên (< 100MB Heap) |
 
-### 8.4. Memory Leak trong ứng dụng Spring Boot — nguyên nhân thực tế
+### 2.7.4. Memory Leak trong ứng dụng Spring Boot — nguyên nhân thực tế
 
 Java có GC tự động, nhưng **Memory Leak vẫn xảy ra thường xuyên** trong thực tế enterprise — không phải vì "quên free memory" như C++, mà vì **giữ reference không cần thiết** khiến object không bao giờ trở thành unreachable.
 
@@ -476,9 +479,9 @@ public class UserContextFilter extends OncePerRequestFilter {
 
 ---
 
-## 9. Reflection API & Custom Annotation
+## 2.8. Reflection API & Custom Annotation
 
-### 9.1. Reflection — cơ chế thực sự đứng sau Spring
+### 2.8.1. Reflection — cơ chế thực sự đứng sau Spring
 
 **Khái niệm**: Reflection cho phép chương trình Java **kiểm tra và thao tác với chính cấu trúc của nó lúc runtime** — đọc danh sách method/field/annotation của 1 class, tạo instance động, gọi method động — mà không cần biết trước tên class lúc compile-time.
 
@@ -533,7 +536,7 @@ public class ReflectionDemo {
 }
 ```
 
-### 9.2. Tự viết Custom Annotation
+### 2.8.2. Tự viết Custom Annotation
 
 **Khái niệm**: Annotation tự nó **không làm gì cả** — nó chỉ là metadata gắn vào code. Sức mạnh thực sự đến từ việc **kết hợp Annotation + Reflection (hoặc AOP)** để đọc annotation đó và thực thi logic tương ứng lúc runtime.
 
@@ -595,9 +598,9 @@ public class AuditLogAspect {
 
 ---
 
-## 10. Record & Sealed Class (Java 17-21)
+## 2.9. Record & Sealed Class (Java 17-21)
 
-### 10.1. Record
+### 2.9.1. Record
 
 **Khái niệm**: `record` (Java 16+) là cú pháp rút gọn để định nghĩa 1 class **immutable data carrier** — tự động sinh constructor, getter (không có tiền tố `get`), `equals()`, `hashCode()`, `toString()`. Tương đương tinh thần với `interface`/`type` bất biến trong TypeScript, nhưng thực sự là class Java với đầy đủ tính năng.
 
@@ -636,7 +639,7 @@ dto.isHighValue();  // false
 
 **Khi nào KHÔNG dùng Record**: JPA Entity (Entity cần mutable, cần constructor rỗng, cần proxy cho lazy-loading — Record không tương thích với các yêu cầu này của Hibernate).
 
-### 10.2. Sealed Class/Interface
+### 2.9.2. Sealed Class/Interface
 
 **Khái niệm**: `sealed` (Java 17+) giới hạn **chính xác những class/interface nào được phép kế thừa/implement** một class/interface — compiler kiểm tra và đảm bảo không có subclass "lạ" nào khác ngoài danh sách khai báo.
 
@@ -672,14 +675,14 @@ public String describeResult(PaymentResult result) {
 
 ---
 
-## 11. Bài tập tổng hợp Chương 2
+## 2.10. Bài tập tổng hợp Chương 2
 
 1. **Dễ**: Viết `ProductDTO` bằng Record với compact constructor validate `price >= 0`.
 2. **Trung bình**: Viết custom annotation `@LogExecutionTime` + AOP Aspect đo thời gian thực thi của bất kỳ method nào được đánh dấu, log ra nếu thời gian > 1000ms (cảnh báo hiệu năng).
 3. **Trung bình**: Tìm và sửa 1 đoạn code có Memory Leak (dùng `static Map` không giới hạn) thành dùng Caffeine Cache với TTL.
 4. **Khó**: Mô hình hóa `OrderStatus` (hiện tại là enum) thành `sealed interface OrderState` với các record `Pending`, `Confirmed(LocalDateTime confirmedAt)`, `Shipped(String trackingNumber)`, `Cancelled(String reason)` — mỗi trạng thái mang theo dữ liệu ngữ cảnh khác nhau. Viết method `describeState()` dùng switch pattern matching xử lý đầy đủ.
 
-## 12. Tổng kết Chương 2
+## 2.11. Tổng kết Chương 2
 
 Chương này đã "vén màn" phần kiến thức mà đa số tài liệu Spring Boot bỏ qua nhưng lại là nền tảng để thực sự **hiểu** framework thay vì chỉ "làm theo": Design Pattern không phải lý thuyết hàn lâm mà là chính cách Spring Framework được xây dựng (Singleton Bean, Factory tạo Bean, Proxy cho AOP, Template Method cho JdbcTemplate, Observer cho ApplicationEvent); JVM Memory Model & GC là kỹ năng bắt buộc để vận hành ứng dụng Java enterprise ổn định, tránh Memory Leak; Reflection + Annotation là cơ chế runtime thực sự đứng sau mọi annotation "ma thuật" của Spring (`@Autowired`, `@Transactional`, `@Component`); và Record/Sealed Class là công cụ hiện đại giúp code Java 21 ngắn gọn, an toàn kiểu dữ liệu gần với trải nghiệm TypeScript mà bạn đã quen thuộc.
 
