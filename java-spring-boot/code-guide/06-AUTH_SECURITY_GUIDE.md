@@ -291,7 +291,7 @@ public RefreshToken createRefreshToken(User user) {
 
 - Khi refresh: kiểm tra token còn hiệu lực (`verifyExpiration`) → tạo **access token mới**.
 - Logout: đặt `isRevoked = true`.
-- **Dọn dẹp định kỳ**: `@Scheduled(fixedRate = 86400000)` (mỗi ngày) xóa token hết hạn/đã revoke — nhờ `@EnableScheduling` ở `WorksphereApplication`.
+- **Dọn dẹp định kỳ**: `@Scheduled(fixedRate = 86400000)` (mỗi ngày) xóa token hết hạn/đã revoke — nhờ `@EnableScheduling` ở `<ProjectName>Application`.
 
 ## 6.7. Google OAuth2 Login
 

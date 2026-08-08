@@ -5,7 +5,7 @@ Hướng dẫn viết unit test cho dự án bằng **JUnit 5 + Mockito + Assert
 ## 10.1. Cấu trúc thư mục test
 
 ```
-src/test/java/com/hainam/worksphere/
+src/test/java/com/example/<project_name>/
 ├── BaseUnitTest.java                    ← class cha cho mọi unit test
 ├── TestFixtures.java                    ← dữ liệu mẫu dùng chung
 ├── auth/util/JwtUtilTest.java

@@ -5,7 +5,7 @@ Hướng dẫn đóng gói và triển khai project bằng Docker.
 ## 11.1. Tổng quan hạ tầng
 
 ```
-[Frontend :3000] --> [Worksphere API :8080 (container)] --> [PostgreSQL]
+[Frontend :3000] --> [<ProjectName> API :8080 (container)] --> [PostgreSQL]
                           |                                        |
                           +--[Redis :6379 (container)] ------------+
 ```
@@ -29,20 +29,20 @@ RUN ./gradlew bootJar --no-daemon          # đóng gói jar
 
 # Stage 2: runtime (nhẹ, bảo mật)
 FROM eclipse-temurin:17-jre-alpine
-RUN addgroup -g 1001 -S worksphere && adduser -S worksphere -u 1001 -G worksphere
-RUN mkdir -p /opt/worksphere/logs && chown -R worksphere:worksphere /opt/worksphere
-WORKDIR /opt/worksphere
-COPY --from=builder /app/build/libs/*.jar worksphere.jar
-USER worksphere                            # không chạy root
+RUN addgroup -g 1001 -S <project_name> && adduser -S <project_name> -u 1001 -G <project_name>
+RUN mkdir -p /opt/<project_name>/logs && chown -R <project_name>:<project_name> /opt/<project_name>
+WORKDIR /opt/<project_name>
+COPY --from=builder /app/build/libs/*.jar <project_name>.jar
+USER <project_name>                       # không chạy root
 EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
     CMD wget --spider http://localhost:8080/actuator/health || exit 1
-ENTRYPOINT ["java", "-Dspring.profiles.active=production", "-jar", "/opt/worksphere/worksphere.jar"]
+ENTRYPOINT ["java", "-Dspring.profiles.active=production", "-jar", "/opt/<project_name>/<project_name>.jar"]
 ```
 
 Điểm quan trọng:
 - **Multi-stage** → image runtime nhỏ (chỉ JRE, không có JDK/Gradle).
-- **Non-root user** `worksphere` → bảo mật.
+- **Non-root user** `<project_name>` → bảo mật.
 - **HEALTHCHECK** dựa trên `/actuator/health` (nhớ bật actuator trong production).
 - **ENTRYPOINT** kích hoạt profile `production` mặc định.
 
@@ -50,7 +50,7 @@ ENTRYPOINT ["java", "-Dspring.profiles.active=production", "-jar", "/opt/worksph
 
 ```yaml
 services:
-  worksphere:
+  <project_name>:
     build: .
     ports:
       - "${APP_PORT:-8080}:8080"
@@ -64,7 +64,7 @@ services:
       - GOOGLE_OAUTH2_CLIENT_SECRET=${GOOGLE_OAUTH2_CLIENT_SECRET}
       - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3000}
     volumes:
-      - ./logs:/opt/worksphere/logs
+      - ./logs:/opt/<project_name>/logs
     depends_on:
       - redis
     restart: unless-stopped
@@ -121,7 +121,7 @@ docker compose --env-file .env up -d --build
 docker compose up -d --build
 
 # Xem log
-docker compose logs -f worksphere
+docker compose logs -f <project_name>
 
 # Kiểm tra health
 curl http://localhost:8080/actuator/health
@@ -138,8 +138,8 @@ docker compose down -v
 - [ ] `GET /actuator/health` trả `{"status":"UP"}`.
 - [ ] Đăng nhập được bằng JWT (không lỗi secret).
 - [ ] Cache hoạt động: gọi 2 lần cùng endpoint → lần 2 không query DB (check log/Redis).
-- [ ] Log app ghi vào `/opt/worksphere/logs` (volume mount `./logs`).
-- [ ] App không chạy với quyền root (user `worksphere`).
+- [ ] Log app ghi vào `/opt/<project_name>/logs` (volume mount `./logs`).
+- [ ] App không chạy với quyền root (user `<project_name>`).
 
 ## 11.7. Lỗi thường gặp
 

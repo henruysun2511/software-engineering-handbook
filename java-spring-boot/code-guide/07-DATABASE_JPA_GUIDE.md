@@ -9,7 +9,7 @@ Hướng dẫn chi tiết về tầng dữ liệu của dự án: cấu hình k�
 ### Dev (`application-development.properties`)
 
 ```properties
-spring.datasource.url=jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:worksphere}
+spring.datasource.url=jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:<project_name>}
 spring.datasource.username=${DB_USERNAME:postgres}
 spring.datasource.password=${DB_PASSWORD:postgres}
 spring.datasource.driver-class-name=org.postgresql.Driver

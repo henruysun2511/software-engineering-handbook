@@ -3,14 +3,14 @@
 ## 2.1. Tổng quan thư mục gốc
 
 ```
-HRM_BE/
+<project_name>/
 ├── src/
 │   ├── main/
-│   │   ├── java/com/hainam/worksphere/   → mã nguồn chính
+│   │   ├── java/com/example/<project_name>/   → mã nguồn chính
 │   │   └── resources/                    → cấu hình + tài nguyên
 │   └── test/                             → test
 ├── build.gradle          → khai báo dependency, plugin, task (dự án dùng Gradle)
-├── settings.gradle       → rootProject.name = 'worksphere'
+├── settings.gradle       → rootProject.name = '<project_name>'
 ├── gradlew               → Gradle wrapper
 ├── .env.example          → mẫu biến môi trường
 ├── docker-compose.yml    → chạy PostgreSQL + Redis (dev)
@@ -20,13 +20,13 @@ HRM_BE/
 
 ## 2.2. Entry point
 
-`src/main/java/com/hainam/worksphere/WorksphereApplication.java`
+`src/main/java/com/example/<project_name>/<ProjectName>Application.java`
 
 - `@SpringBootApplication` — khởi động Spring Boot.
 - `@EnableScheduling` — bật scheduler (dùng để dọn token hết hạn...).
 - Trong `main()`: set **timezone mặc định là UTC** cho JVM, và đăng ký **spring-dotenv** (`DotenvPropertySource`) để đọc biến từ file `.env`.
 
-## 2.3. Cấu trúc package `com.hainam.worksphere`
+## 2.3. Cấu trúc package `com.example.<project_name>`
 
 ### Module nghiệp vụ (Business modules)
 

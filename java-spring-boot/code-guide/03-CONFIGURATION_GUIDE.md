@@ -40,7 +40,7 @@ src/main/resources/
 | | `development` | `production` |
 | - | ------------- | ------------ |
 | SQL log | Hiện (DEBUG/TRACE) | Tắt (`show-sql=false`) |
-| Log level | `DEBUG` (worksphere, security) | `ERROR`/`WARN`, ghi vào `logs/worksphere-production.log` |
+| Log level | `DEBUG` (<project_name>, security) | `ERROR`/`WARN`, ghi vào `logs/<project_name>-production.log` |
 | Stacktrace lỗi | Luôn hiện | Không hiện |
 | DB | PostgreSQL local (`localhost`, user/pass mặc định `postgres/postgres`) | Lấy từ biến môi trường `DB_HOST/DB_PORT/DB_NAME/DB_USERNAME/DB_PASSWORD` |
 

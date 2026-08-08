@@ -1,6 +1,6 @@
-# Hướng dẫn code dự án HRM_BE (Worksphere)
+# Hướng dẫn code dự án <project_name>
 
-Tài liệu hướng dẫn cách làm việc với dự án Spring Boot `worksphere`.
+Tài liệu hướng dẫn cách làm việc với dự án Spring Boot `<project_name>`.
 
 ## Danh sách tài liệu
 

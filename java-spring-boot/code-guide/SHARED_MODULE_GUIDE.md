@@ -1,6 +1,6 @@
-# Hướng dẫn chi tiết module `shared` - HRM_BE (Worksphere)
+# Hướng dẫn chi tiết module `shared` - <project_name>
 
-Module **`shared`** nằm tại `src/main/java/com/hainam/worksphere/shared/`, chứa các thành phần **dùng chung** cho toàn bộ backend: cấu hình (config), các chuẩn API Response/DTO, hệ thống exception/handler, audit logging, rate limiting, caching với fallback, mã hóa dữ liệu trước khi lưu DB, và các tiện ích gọi API bên ngoài.
+Module **`shared`** nằm tại `src/main/java/com/example/<project_name>/shared/`, chứa các thành phần **dùng chung** cho toàn bộ backend: cấu hình (config), các chuẩn API Response/DTO, hệ thống exception/handler, audit logging, rate limiting, caching với fallback, mã hóa dữ liệu trước khi lưu DB, và các tiện ích gọi API bên ngoài.
 
 Khác với các module nghiệp vụ (employee, department, ...) chỉ gồm các package `controller/domain/dto/mapper/repository/service`, module `shared` là **nền tảng kỹ thuật (infrastructure layer)**, không chứa nghiệp vụ cụ thể của từng phân hệ.
 

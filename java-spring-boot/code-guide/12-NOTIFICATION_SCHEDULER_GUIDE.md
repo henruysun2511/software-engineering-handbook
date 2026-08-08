@@ -26,7 +26,7 @@ notification/
 
 ## 12.2. Bật Scheduling & Async
 
-- `@EnableScheduling` được bật ở **`WorksphereApplication`** → các method `@Scheduled` tự chạy.
+- `@EnableScheduling` được bật ở **`<ProjectName>Application`** → các method `@Scheduled` tự chạy.
 - `@EnableAsync` bật trong `AuditConfiguration` (`shared/audit/config`) → dùng chung cho `@Async` khi cần xử lý nền (VD ghi audit async).
 
 ## 12.3. Entity & enum

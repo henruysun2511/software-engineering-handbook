@@ -55,7 +55,7 @@ Sau khi build sẽ có:
 
 ```
 target/
-└── worksphere-0.0.1-SNAPSHOT.jar
+└── <project_name>-0.0.1-SNAPSHOT.jar
 ```
 
 ## 8. Chạy file JAR
@@ -63,7 +63,7 @@ target/
 Sau khi build:
 
 ```bash
-java -jar target\worksphere-0.0.1-SNAPSHOT.jar
+java -jar target\<project_name>-0.0.1-SNAPSHOT.jar
 ```
 
 ## 9. Chạy test
@@ -95,7 +95,7 @@ Java: Clean Java Language Server Workspace
 ```bash
 git clone <repo>
 
-cd worksphere
+cd <project_name>
 
 .\mvnw.cmd clean install
 
@@ -168,7 +168,7 @@ javac -version
 .\mvnw.cmd test
 
 # Chạy file JAR sau khi build
-java -jar target\worksphere-0.0.1-SNAPSHOT.jar
+java -jar target\<project_name>-0.0.1-SNAPSHOT.jar
 ```
 
 Đối với quá trình học Spring Boot, 95% thời gian bạn chỉ cần sử dụng ba lệnh sau:
