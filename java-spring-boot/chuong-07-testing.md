@@ -2,6 +2,26 @@
 
 > Tài liệu đào tạo Java Backend Developer — dành cho người đã có nền tảng Backend (Node.js/Express/NestJS), chuyển sang hệ sinh thái Java/Spring Boot.
 
+## Mục lục
+
+- [Giới thiệu](#giới-thiệu)
+- [7.1. Unit Test](#71-unit-test)
+  - [7.1.1. Tích hợp dependency vào `pom.xml`](#711-tích-hợp-dependency-vào-pomxml)
+  - [7.1.2. JUnit 5 cơ bản](#712-junit-5-cơ-bản)
+  - [7.1.3. Mockito: mock dependency, verify, when-thenReturn](#713-mockito-mock-dependency-verify-when-thenreturn)
+- [7.2. Integration Test](#72-integration-test)
+  - [7.2.1. `@SpringBootTest` — khi nào cần khởi động Spring Context thật](#721-springboottest-khi-nào-cần-khởi-động-spring-context-thật)
+  - [7.2.2. Test Controller với MockMvc](#722-test-controller-với-mockmvc)
+  - [7.2.3. RestAssured — lựa chọn thay thế cho Integration Test gọi API thật](#723-restassured-lựa-chọn-thay-thế-cho-integration-test-gọi-api-thật)
+  - [7.2.4. Testcontainers — test với PostgreSQL thật trong container](#724-testcontainers-test-với-postgresql-thật-trong-container)
+  - [7.2.5. Đo Test Coverage với JaCoCo](#725-đo-test-coverage-với-jacoco)
+- [Ví dụ Code: Bộ test hoàn chỉnh cho `OrderService` — từ Unit tới Integration](#ví-dụ-code-bộ-test-hoàn-chỉnh-cho-orderservice-từ-unit-tới-integration)
+- [So sánh tổng hợp: Test Pyramid trong Spring Boot](#so-sánh-tổng-hợp-test-pyramid-trong-spring-boot)
+- [Best Practices](#best-practices)
+- [Anti-patterns](#anti-patterns)
+- [Bài tập](#bài-tập)
+- [Tổng kết](#tổng-kết)
+
 ## Giới thiệu
 
 Nếu bạn từng dùng Jest/Vitest bên Node.js, tư duy testing không xa lạ: Unit Test cô lập 1 đơn vị logic, Integration Test kiểm tra nhiều thành phần phối hợp với nhau. Điểm khác biệt lớn nhất khi testing trong Spring Boot là **2 chế độ chạy test hoàn toàn tách biệt**: test **không cần khởi động Spring Context** (nhanh, dùng cho Unit Test tầng Service/logic nghiệp vụ) và test **cần khởi động toàn bộ hoặc một phần Spring Context** (chậm hơn nhiều, dùng cho Integration Test xác nhận các Bean thực sự phối hợp đúng).
