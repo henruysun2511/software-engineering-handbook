@@ -2,6 +2,24 @@
 
 > Tài liệu đào tạo Java Backend Developer — dành cho người đã có nền tảng Backend (Node.js/Express/NestJS), chuyển sang hệ sinh thái Java/Spring Boot.
 
+## Mục lục
+
+- [Giới thiệu](#giới-thiệu)
+- [4.1. Spring Boot là gì, tại sao dùng Spring Boot thay vì Spring thuần](#41-spring-boot-là-gì-tại-sao-dùng-spring-boot-thay-vì-spring-thuần)
+- [4.2. Spring Initializr — tạo project](#42-spring-initializr-tạo-project)
+- [4.3. Cấu trúc thư mục 1 project Spring Boot](#43-cấu-trúc-thư-mục-1-project-spring-boot)
+- [4.4. File `application.properties` / `application.yml`](#44-file-applicationproperties-applicationyml)
+- [4.5. Annotation cơ bản](#45-annotation-cơ-bản)
+- [4.6. Auto-configuration, Starter dependencies](#46-auto-configuration-starter-dependencies)
+  - [4.6.1. Starter dependencies](#461-starter-dependencies)
+  - [4.6.2. Auto-configuration — cơ chế thực sự bên dưới](#462-auto-configuration-cơ-chế-thực-sự-bên-dưới)
+- [4.7. Chạy thử ứng dụng Spring Boot đầu tiên ("Hello World")](#47-chạy-thử-ứng-dụng-spring-boot-đầu-tiên-hello-world)
+- [So sánh tổng hợp Chương 4](#so-sánh-tổng-hợp-chương-4)
+- [Best Practices](#best-practices)
+- [Anti-patterns](#anti-patterns)
+- [Bài tập](#bài-tập)
+- [Tổng kết](#tổng-kết)
+
 ## Giới thiệu
 
 Chương 3 đã cho bạn hiểu **IoC Container hoạt động ra sao ở tầng lõi** — Bean, Dependency Injection, ApplicationContext. Nhưng nếu chỉ dùng Spring thuần, bạn sẽ phải tự khai báo hàng chục `@Bean` cho DataSource, ObjectMapper, MVC Dispatcher, Embedded Server... trước khi viết được dòng nghiệp vụ đầu tiên.
@@ -93,6 +111,50 @@ my-order-service/
 │           └── controller/
 │               └── OrderControllerTest.java
 └── target/                                  # Build output (tương đương dist/ bên Node.js)
+```
+
+Nếu chia theo module
+```
+attendance/
+├── controller/
+│   └── AttendanceController.java
+│
+├── service/
+│   ├── AttendanceService.java
+│   └── impl/
+│       └── AttendanceServiceImpl.java
+│
+├── repository/
+│   └── AttendanceRepository.java
+│
+├── domain/
+│   └── Attendance.java
+│
+├── dto/
+│   ├── request/
+│   │   ├── CreateAttendanceRequest.java
+│   │   └── UpdateAttendanceRequest.java
+│   │
+│   └── response/
+│       └── AttendanceResponse.java
+│
+├── mapper/
+│   └── AttendanceMapper.java
+│
+├── specification/
+│   └── AttendanceSpecification.java
+│
+├── validator/
+│   └── AttendanceValidator.java
+│
+├── exception/
+│   └── AttendanceException.java
+│
+├── enums/
+│   └── AttendanceStatus.java
+│
+└── util/
+    └── AttendanceUtils.java
 ```
 
 **2 cách tổ chức package phổ biến trong enterprise**:

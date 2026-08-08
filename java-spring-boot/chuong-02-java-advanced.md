@@ -1,6 +1,30 @@
 # CHƯƠNG 2: JAVA NÂNG CAO
 
-## 1. Giới thiệu
+## Mục lục
+
+- [Giới thiệu](#giới-thiệu)
+- [2. Kiến thức](#2-kiến-thức)
+  - [2.1. Design Patterns trong Java Enterprise](#21-design-patterns-trong-java-enterprise)
+- [3. Minh họa](#3-minh-họa)
+- [4. So sánh: Khi nào dùng Pattern nào](#4-so-sánh-khi-nào-dùng-pattern-nào)
+- [5. Best Practices](#5-best-practices)
+- [6. Anti-patterns](#6-anti-patterns)
+- [7. Bài tập](#7-bài-tập)
+- [8. JVM Memory Model & Garbage Collection](#8-jvm-memory-model-garbage-collection)
+  - [8.1. Tại sao Backend Developer BẮT BUỘC phải hiểu](#81-tại-sao-backend-developer-bắt-buộc-phải-hiểu)
+  - [8.2. Cấu trúc bộ nhớ JVM](#82-cấu-trúc-bộ-nhớ-jvm)
+  - [8.3. Garbage Collection hoạt động thế nào](#83-garbage-collection-hoạt-động-thế-nào)
+  - [8.4. Memory Leak trong ứng dụng Spring Boot — nguyên nhân thực tế](#84-memory-leak-trong-ứng-dụng-spring-boot-nguyên-nhân-thực-tế)
+- [9. Reflection API & Custom Annotation](#9-reflection-api-custom-annotation)
+  - [9.1. Reflection — cơ chế thực sự đứng sau Spring](#91-reflection-cơ-chế-thực-sự-đứng-sau-spring)
+  - [9.2. Tự viết Custom Annotation](#92-tự-viết-custom-annotation)
+- [10. Record & Sealed Class (Java 17-21)](#10-record-sealed-class-java-17-21)
+  - [10.1. Record](#101-record)
+  - [10.2. Sealed Class/Interface](#102-sealed-classinterface)
+- [11. Bài tập tổng hợp Chương 2](#11-bài-tập-tổng-hợp-chương-2)
+- [12. Tổng kết Chương 2](#12-tổng-kết-chương-2)
+
+## Giới thiệu
 
 Nếu Chương 1 là "ngữ pháp" của Java, Chương 2 là "tại sao Spring Framework lại được thiết kế như vậy". Bạn sẽ hiểu:
 

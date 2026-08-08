@@ -4,7 +4,42 @@
 
 ---
 
-## 1. Giới thiệu
+## Mục lục
+
+- [Giới thiệu](#giới-thiệu)
+- [2. Kiến thức](#2-kiến-thức)
+  - [2.1. Kiểu dữ liệu và biến (Type System)](#21-kiểu-dữ-liệu-và-biến-type-system)
+  - [2.2. Lập trình hướng đối tượng (OOP) trong Java](#22-lập-trình-hướng-đối-tượng-oop-trong-java)
+- [3. Minh họa](#3-minh-họa)
+- [4. Ví dụ Code: Hệ thống quản lý đơn hàng (mini)](#4-ví-dụ-code-hệ-thống-quản-lý-đơn-hàng-mini)
+- [5. So sánh: Constructor Injection vs Field Injection (áp dụng nguyên lý OOP)](#5-so-sánh-constructor-injection-vs-field-injection-áp-dụng-nguyên-lý-oop)
+- [6. Best Practices (tổng hợp Chương 1)](#6-best-practices-tổng-hợp-chương-1)
+- [7. Anti-patterns](#7-anti-patterns)
+- [8. Bài tập](#8-bài-tập)
+- [9. Tổng kết](#9-tổng-kết)
+- [10. Generics](#10-generics)
+  - [10.1. Khái niệm & Tại sao cần](#101-khái-niệm-tại-sao-cần)
+- [11. Collection Framework](#11-collection-framework)
+  - [11.1. Tổng quan kiến trúc](#111-tổng-quan-kiến-trúc)
+  - [11.2. List: ArrayList vs LinkedList](#112-list-arraylist-vs-linkedlist)
+  - [11.3. Set: HashSet vs LinkedHashSet vs TreeSet](#113-set-hashset-vs-linkedhashset-vs-treeset)
+  - [11.4. Map: HashMap vs LinkedHashMap vs TreeMap](#114-map-hashmap-vs-linkedhashmap-vs-treemap)
+- [12. Exception Handling](#12-exception-handling)
+  - [12.1. Checked vs Unchecked Exception](#121-checked-vs-unchecked-exception)
+- [13. Java 8+ Features: Lambda, Stream API, Optional, Functional Interface](#13-java-8-features-lambda-stream-api-optional-functional-interface)
+  - [13.1. Functional Interface & Lambda Expression](#131-functional-interface-lambda-expression)
+  - [13.2. Stream API](#132-stream-api)
+  - [13.3. Optional](#133-optional)
+- [14. Multithreading & Concurrency cơ bản](#14-multithreading-concurrency-cơ-bản)
+  - [14.1. Khác biệt cốt lõi so với Node.js Event Loop](#141-khác-biệt-cốt-lõi-so-với-nodejs-event-loop)
+  - [14.2. Thread, Runnable, ExecutorService](#142-thread-runnable-executorservice)
+  - [14.3. synchronized, volatile, và race condition](#143-synchronized-volatile-và-race-condition)
+  - [14.4. CompletableFuture — lập trình bất đồng bộ kiểu Java](#144-completablefuture-lập-trình-bất-đồng-bộ-kiểu-java)
+- [15. I/O cơ bản](#15-io-cơ-bản)
+- [16. Bài tập tổng hợp Chương 1](#16-bài-tập-tổng-hợp-chương-1)
+- [17. Tổng kết Chương 1](#17-tổng-kết-chương-1)
+
+## Giới thiệu
 
 Nếu bạn đến từ NodeJS/NestJS, bạn đã quen với runtime đơn luồng non-blocking I/O, typing động (hoặc TypeScript typing tĩnh nhưng bị xoá lúc runtime), và một hệ sinh thái package cực kỳ linh hoạt (npm). Java giải quyết bài toán "xây dựng hệ thống backend enterprise, chạy hàng chục năm, hàng trăm developer cùng maintain" bằng một triết lý gần như đối lập:
 

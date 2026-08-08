@@ -2,6 +2,24 @@
 
 > Tài liệu đào tạo Java Backend Developer — dành cho người đã có nền tảng Backend (Node.js/Express/NestJS), chuyển sang hệ sinh thái Java/Spring Boot.
 
+## Mục lục
+
+- [Giới thiệu](#giới-thiệu)
+- [3.1. Spring là gì, hệ sinh thái Spring](#31-spring-là-gì-hệ-sinh-thái-spring)
+- [3.2. Inversion of Control (IoC) là gì](#32-inversion-of-control-ioc-là-gì)
+- [3.3. Dependency Injection: Constructor, Setter, Field Injection](#33-dependency-injection-constructor-setter-field-injection)
+- [3.4. ApplicationContext và BeanFactory](#34-applicationcontext-và-beanfactory)
+- [3.5. Spring Bean: khai báo, scope, lifecycle](#35-spring-bean-khai-báo-scope-lifecycle)
+  - [3.5.1. Hai cách khai báo Bean](#351-hai-cách-khai-báo-bean)
+  - [3.5.2. Bean Scope](#352-bean-scope)
+  - [3.5.3. Bean Lifecycle](#353-bean-lifecycle)
+- [Ví dụ Code: Tổng hợp toàn bộ chương trong 1 tình huống thực tế](#ví-dụ-code-tổng-hợp-toàn-bộ-chương-trong-1-tình-huống-thực-tế)
+- [So sánh: Bean Definition tổng hợp](#so-sánh-bean-definition-tổng-hợp)
+- [Best Practices](#best-practices)
+- [Anti-patterns](#anti-patterns)
+- [Bài tập](#bài-tập)
+- [Tổng kết](#tổng-kết)
+
 ## Giới thiệu
 
 Nếu bạn từng dùng NestJS, bạn đã quen với `@Injectable()`, `@Module()`, constructor injection — thực ra **NestJS lấy cảm hứng trực tiếp từ Spring Framework**. Chương này cho bạn thấy "bản gốc" hoạt động ra sao, và quan trọng hơn: **tại sao** nó được thiết kế như vậy, dựa trên nền tảng Reflection + Design Pattern đã học ở Chương 2.
