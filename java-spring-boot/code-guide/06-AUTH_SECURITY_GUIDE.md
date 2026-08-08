@@ -4,6 +4,61 @@ Hướng dẫn chi tiết về cơ chế bảo mật của dự án: JWT, login/
 
 > Nên đọc `04-ARCHITECTURE_GUIDE.md` trước để nắm chung luồng request.
 
+## Cấu trúc module `auth` — từng file làm gì
+
+```
+auth/
+├── config/                       # Cấu hình bean & bảo mật
+│   ├── SecurityConfig.java       # SecurityFilterChain — ráp toàn bộ filter, endpoint public
+│   ├── AuthenticationConfig.java # Bean AuthenticationManager
+│   ├── PasswordEncoderConfig.java# Bean BCrypt PasswordEncoder
+│   ├── JwtProperties.java        # Đọc JWT_SECRET, thời hạn access/refresh từ env
+│   └── GoogleOAuth2Properties.java # Đọc client-id/secret/redirect-uri Google OAuth2
+├── controller/
+│   ├── AuthController.java       # Endpoint login/register/refresh-token/logout/logout-all
+│   └── OAuth2Controller.java     # Endpoint /google (redirect), /validate-token
+├── service/
+│   ├── AuthenticationService.java# Nghiệp vụ login/register — TRUNG TÂM module
+│   ├── RefreshTokenService.java  # Tạo/validate/revoke refresh token
+│   └── (CustomUserDetailsService xem security/)
+├── security/
+│   ├── JwtAuthenticationFilter.java # Đọc Bearer JWT → tạo UserPrincipal → SecurityContext
+│   ├── CustomUserDetailsService.java# Load user + roles + permissions từ DB
+│   ├── UserPrincipal.java        # Implements UserDetails — chứa id, roles, permissions
+│   ├── CustomAuthenticationEntryPoint.java # Trả 401 khi chưa đăng nhập
+│   ├── CustomAccessDeniedHandler.java      # Trả 403 khi không đủ quyền
+│   └── OAuth2AuthenticationSuccessHandler.java # Xử lý sau khi login Google thành công
+├── util/
+│   └── JwtUtil.java              # Tạo/parse/validate JWT (HS256), trích username/claims
+├── domain/
+│   └── RefreshToken.java         # Entity lưu refresh token (expiry, revoked)
+├── mapper/
+│   ├── AuthMapper.java           # Request → User
+│   ├── AuthResponseMapper.java   # → AuthenticationResponse / TokenResponse
+│   └── UserAuthorizationMapper.java # → UserAuthorizationResponse (roles/permissions)
+├── dto/
+│   ├── request/  RegisterRequest, LoginRequest, RefreshTokenRequest
+│   └── response/ AuthenticationResponse, TokenResponse
+└── repository/
+    └── RefreshTokenRepository.java # Query refresh token theo user/trạng thái
+```
+
+## Thứ tự code các file trong `auth`
+
+Thứ tự **viết/đọc code** theo luồng xử lý (config → domain → repository → mapper/dto → service → controller → security):
+
+1. **`config/JwtProperties` + `PasswordEncoderConfig` + `AuthenticationConfig`** — bean nền tảng (secret, BCrypt, AuthenticationManager).
+2. **`domain/RefreshToken` + `repository/RefreshTokenRepository`** — dữ liệu refresh token.
+3. **`mapper` + `dto`** — chuyển đổi Request ↔ User ↔ Response.
+4. **`util/JwtUtil`** — sinh/parse token (service phụ thuộc).
+5. **`service/RefreshTokenService` → `service/AuthenticationService`** — nghiệp vụ (login, register, refresh).
+6. **`controller/AuthController` + `OAuth2Controller`** — expose endpoint.
+7. **`security/CustomUserDetailsService` → `UserPrincipal` → `JwtAuthenticationFilter`** — xác thực từng request.
+8. **`security/CustomAuthenticationEntryPoint` + `CustomAccessDeniedHandler` + `OAuth2AuthenticationSuccessHandler`** — xử lý 401/403/OAuth.
+9. **`config/SecurityConfig`** — ráp tất cả lại thành SecurityFilterChain (đọc cuối để thấy bức tranh hoàn chỉnh).
+
+> Mẹo đọc nhanh: mọi chức năng đều đi từ **Controller → Service → Repository**, riêng phần xác thực mỗi request nằm ở `JwtAuthenticationFilter` → `CustomUserDetailsService` → `UserPrincipal`.
+
 ## 6.1. Tổng quan cơ chế bảo mật
 
 Dự án dùng **JWT stateless** kết hợp **RBAC**:
