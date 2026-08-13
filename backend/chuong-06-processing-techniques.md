@@ -126,15 +126,211 @@ Kết quả đúng phải là 180, nhưng vì B đọc dữ liệu **trước kh
 
 | Kỹ thuật | Bản chất | Khi dùng |
 |---|---|---|
-| **Pessimistic Locking** | Khóa dòng dữ liệu ngay khi đọc, các request khác phải chờ (dùng `SELECT ... FOR UPDATE`) | Xung đột xảy ra thường xuyên, dữ liệu quan trọng (tài chính) |
-| **Optimistic Locking** | Không khóa trước, nhưng kiểm tra version/timestamp khi ghi — nếu dữ liệu đã bị người khác thay đổi thì từ chối ghi và yêu cầu thử lại | Xung đột hiếm xảy ra, cần hiệu năng cao |
-| **Atomic Update** (mục 6.3) | Gộp đọc-tính toán-ghi thành một lệnh duy nhất ở tầng database | Các phép toán đơn giản như cộng/trừ số lượng |
+| **Pessimistic Locking** (mục 6.3.1) | Khóa dòng dữ liệu ngay khi đọc, các request khác phải chờ (dùng `SELECT ... FOR UPDATE`) | Xung đột xảy ra thường xuyên, dữ liệu quan trọng (tài chính) |
+| **Optimistic Locking** (mục 6.3.2) | Không khóa trước, nhưng kiểm tra version/timestamp khi ghi — nếu dữ liệu đã bị người khác thay đổi thì từ chối ghi và yêu cầu thử lại | Xung đột hiếm xảy ra, cần hiệu năng cao |
+| **Atomic Update** (mục 6.4) | Gộp đọc-tính toán-ghi thành một lệnh duy nhất ở tầng database | Các phép toán đơn giản như cộng/trừ số lượng |
 
 ---
 
-## 6.3. Atomic Update
+## 6.3. Locking Mechanisms (Cơ chế Khóa)
 
-### 6.3.1. Bản chất
+Khi sử dụng các hệ quản trị cơ sở dữ liệu quan hệ (RDBMS) hoặc các bộ Object-Relational Mapping (ORM) như TypeORM, Prisma, Hibernate, chúng ta có hai chiến lược khóa chính để kiểm soát tranh chấp dữ liệu khi nhiều transaction cùng chạy đồng thời.
+
+### 6.3.1. Pessimistic Locking (Khóa bi quan)
+
+#### Bản chất
+**Pessimistic Locking** hoạt động trên giả định: *"Xung đột dữ liệu rất dễ xảy ra, vì vậy ta phải khóa tài nguyên lại ngay khi đọc để không ai có thể can thiệp cho đến khi ta xử lý xong."*
+
+Khi một transaction sử dụng Pessimistic Lock để đọc dữ liệu (thường là đọc để ghi), DBMS sẽ đặt một **Exclusive Lock (Khóa độc quyền - X Lock)** lên các dòng dữ liệu đó. Các transaction khác muốn đọc hoặc ghi vào cùng dòng đó sẽ phải **chờ (block)** cho đến khi transaction đầu tiên commit hoặc rollback.
+
+#### SQL tương đương
+Trong SQL tiêu chuẩn, Pessimistic Lock được hiện thực hóa bằng mệnh đề `FOR UPDATE` đặt ở cuối câu lệnh `SELECT`:
+
+```sql
+-- Transaction A bắt đầu và giữ khóa
+BEGIN TRANSACTION;
+SELECT * FROM products WHERE id = 'p1' FOR UPDATE;
+-- Lúc này, bất kỳ câu lệnh SELECT ... FOR UPDATE hoặc UPDATE/DELETE nào từ Transaction B
+-- trỏ tới dòng 'p1' đều phải chờ Transaction A commit/rollback.
+
+-- Thực hiện cập nhật dữ liệu
+UPDATE products SET stock = stock - 1 WHERE id = 'p1';
+COMMIT; -- Giải phóng khóa
+```
+
+#### Triển khai thực tế trong NestJS
+##### Với TypeORM:
+TypeORM hỗ trợ Pessimistic Lock trực tiếp thông qua options của `findOne` hoặc QueryBuilder:
+
+```typescript
+// Sử dụng repository.findOne với lock option
+await this.dataSource.transaction(async (transactionalEntityManager) => {
+  const product = await transactionalEntityManager.findOne(Product, {
+    where: { id },
+    lock: { mode: 'pessimistic_write' } // Tương đương với SELECT ... FOR UPDATE
+  });
+
+  if (product.stock < quantity) {
+    throw new BadRequestException('Không đủ hàng tồn kho');
+  }
+
+  product.stock -= quantity;
+  await transactionalEntityManager.save(product);
+});
+```
+
+##### Với Prisma:
+Prisma không hỗ trợ cú pháp lock trực tiếp thông qua API chuẩn, nhưng chúng ta có thể sử dụng `$queryRaw` hoặc tính năng interactive transactions kết hợp SQL thuần:
+
+```typescript
+await this.prisma.$transaction(async (tx) => {
+  // Đọc dữ liệu và khóa dòng bằng SELECT ... FOR UPDATE
+  const [product] = await tx.$queryRaw<Product[]>`
+    SELECT * FROM "Product" WHERE id = ${id} LIMIT 1 FOR UPDATE
+  `;
+
+  if (product.stock < quantity) {
+    throw new BadRequestException('Không đủ hàng tồn kho');
+  }
+
+  // Cập nhật dữ liệu
+  await tx.product.update({
+    where: { id },
+    data: { stock: product.stock - quantity },
+  });
+});
+```
+
+#### Đánh giá
+* **Ưu điểm**: 
+  - Đảm bảo an toàn tuyệt đối cho dữ liệu. Tránh hoàn toàn tình trạng thất thoát hoặc sai lệch dữ liệu do cập nhật đồng thời.
+  - Phù hợp nhất cho các hệ thống có tần suất ghi cao và dữ liệu cực kỳ nhạy cảm (như giao dịch tài chính, số dư ví điện tử).
+* **Nhược điểm**:
+  - **Hiệu năng kém**: Do các request phải xếp hàng chờ giải phóng khóa, làm tăng thời gian phản hồi (response time) và giảm thông lượng (throughput) của hệ thống.
+  - **Nguy cơ Deadlock**: Nếu hai transaction cùng giữ khóa chéo nhau (Transaction A khóa dòng 1 và chờ dòng 2; Transaction B khóa dòng 2 và chờ dòng 1), hệ thống sẽ rơi vào trạng thái khóa chết.
+
+---
+
+### 6.3.2. Optimistic Locking (Khóa lạc quan)
+
+#### Bản chất
+**Optimistic Locking** hoạt động trên giả định ngược lại: *"Xung đột dữ liệu rất hiếm khi xảy ra, vì vậy ta không cần khóa dữ liệu lại làm gì. Ta cứ cho đọc thoải mái, nhưng trước khi lưu, ta sẽ kiểm tra xem dữ liệu có bị ai khác sửa đổi kể từ lúc ta đọc hay chưa."*
+
+Cơ chế này không sử dụng các khóa vật lý của hệ quản trị cơ sở dữ liệu. Thay vào đó, nó sử dụng một cột đặc biệt trong bảng (thường là `version` kiểu số nguyên hoặc `updated_at` kiểu timestamp) để theo dõi sự thay đổi.
+
+#### Cơ chế hoạt động & SQL tương đương
+1. **Bước 1**: Đọc dữ liệu bao gồm cả cột phiên bản:
+   ```sql
+   SELECT id, name, stock, version FROM products WHERE id = 'p1';
+   -- Giả sử nhận được: stock = 100, version = 1
+   ```
+2. **Bước 2**: Thực hiện tính toán ở tầng ứng dụng (ví dụ trừ đi 5 còn 95).
+3. **Bước 3**: Cập nhật dữ liệu và tăng `version` lên 1, nhưng chỉ khi `version` trong DB vẫn bằng `version` mà ta đã đọc ở Bước 1:
+   ```sql
+   UPDATE products 
+   SET stock = 95, version = 2 
+   WHERE id = 'p1' AND version = 1;
+   ```
+4. **Kết quả**:
+   - Nếu không có ai thay đổi dữ liệu ở giữa, câu lệnh sẽ cập nhật thành công (số dòng bị ảnh hưởng = 1).
+   - Nếu có một transaction khác đã cập nhật trước đó (khiến `version` trong DB tăng lên 2), điều kiện `version = 1` sẽ không khớp. Số dòng bị ảnh hưởng trả về là 0. Ứng dụng sẽ nhận biết đây là xung đột phiên bản (Version Conflict) và ném ra lỗi (hoặc tự động retry).
+
+#### Triển khai thực tế trong NestJS
+##### Với TypeORM:
+TypeORM cung cấp decorator `@VersionColumn()` để tự động hóa toàn bộ quy trình này:
+
+```typescript
+// product.entity.ts
+@Entity()
+export class Product {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
+  @Column()
+  stock: number;
+
+  @VersionColumn() // TypeORM tự động quản lý tăng version và check điều kiện khi save
+  version: number;
+}
+
+// product.service.ts
+async updateStock(id: string, quantity: number) {
+  const product = await this.productRepo.findOneBy({ id });
+  if (product.stock < quantity) {
+    throw new BadRequestException('Không đủ hàng tồn kho');
+  }
+
+  product.stock -= quantity;
+  try {
+    // TypeORM sẽ thực hiện: UPDATE product SET stock = ..., version = version + 1 WHERE id = ... AND version = old_version
+    await this.productRepo.save(product);
+  } catch (error) {
+    // Nếu có transaction khác đã update trước, TypeORM sẽ ném ra OptimisticLockVersionMismatchError
+    if (error instanceof OptimisticLockVersionMismatchError) {
+      throw new ConflictException('Dữ liệu đã bị thay đổi bởi người dùng khác. Vui lòng thử lại.');
+    }
+    throw error;
+  }
+}
+```
+
+##### Với Prisma:
+Prisma không tích hợp sẵn decorator tự động cho Optimistic Locking như TypeORM, chúng ta phải hiện thực hóa thủ công thông qua điều kiện `where`:
+
+```typescript
+async updateStock(id: string, quantity: number) {
+  const product = await this.prisma.product.findUnique({ where: { id } });
+  if (product.stock < quantity) {
+    throw new BadRequestException('Không đủ hàng tồn kho');
+  }
+
+  try {
+    await this.prisma.product.update({
+      where: {
+        id,
+        version: product.version, // Chỉ cập nhật nếu version khớp
+      },
+      data: {
+        stock: product.stock - quantity,
+        version: { increment: 1 }, // Tăng version lên 1
+      },
+    });
+  } catch (error) {
+    // Prisma ném lỗi P2025 nếu không tìm thấy bản ghi thỏa mãn điều kiện where (do version bị lệch)
+    if (error.code === 'P2025') {
+      throw new ConflictException('Dữ liệu đã bị thay đổi bởi người dùng khác. Vui lòng thử lại.');
+    }
+    throw error;
+  }
+}
+```
+
+#### Đánh giá
+* **Ưu điểm**:
+  - **Hiệu năng cao**: Không khóa kết nối DB, không làm các request khác bị block chờ đợi. Hệ thống đạt throughput cực lớn.
+  - Tránh hoàn toàn nguy cơ Deadlock do không sử dụng khóa giữ chéo.
+* **Nhược điểm**:
+  - **Tốn chi phí xử lý lỗi**: Khi xảy ra xung đột dữ liệu (ví dụ vào giờ cao điểm), rất nhiều transaction sẽ bị từ chối cập nhật. Ứng dụng phải tự bắt lỗi và thực hiện Retry (thường kết hợp với cơ chế Retry ở Mục 6.6) để hoàn thành tác vụ cho người dùng, gây tốn tài nguyên tính toán của ứng dụng.
+
+---
+
+### 6.3.3. So sánh và Lựa chọn
+
+| Tiêu chí | Pessimistic Locking (Khóa bi quan) | Optimistic Locking (Khóa lạc quan) |
+|---|---|---|
+| **Cơ chế khóa** | Dùng khóa vật lý của DB (`SELECT ... FOR UPDATE`) | Ứng dụng kiểm tra phiên bản dữ liệu (`version`) |
+| **Hành vi luồng** | Block các request khác, bắt xếp hàng | Không block, cho chạy song song nhưng từ chối khi ghi |
+| **Xử lý xung đột** | DB tự xử lý thông qua cơ chế xếp hàng | Ứng dụng phải bắt ngoại lệ và chủ động Retry |
+| **Hiệu năng** | Thấp hơn khi có tải cao (do phải chờ đợi) | Rất cao, tận dụng tối đa phần cứng DB |
+| **Nguy cơ Deadlock** | Có thể xảy ra | Hoàn toàn không |
+| **Tần suất xung đột** | Thích hợp khi xung đột **thường xuyên** xảy ra | Thích hợp khi xung đột **hiếm khi** xảy ra |
+| **Trường hợp áp dụng** | Giao dịch ví tiền, thanh toán ngân hàng, đặt chỗ vé máy bay | Sửa bài viết blog, quản lý thông tin profile người dùng |
+
+---
+
+## 6.4. Atomic Update
+
+### 6.4.1. Bản chất
 
 Nguyên nhân gốc rễ của Race Condition ở trên là việc tách thao tác "đọc rồi ghi" thành **hai bước riêng biệt ở tầng ứng dụng**. **Atomic Update** giải quyết tận gốc bằng cách đẩy toàn bộ phép toán xuống **một lệnh duy nhất tại tầng database**, để chính database — nơi vốn được thiết kế đảm bảo tính nguyên tử — thực hiện cả đọc và ghi trong một bước không thể chia cắt.
 
@@ -165,7 +361,7 @@ UPDATE products SET stock = stock - :quantity WHERE id = :id;
 
 Vì phép trừ diễn ra ngay trong một câu lệnh SQL duy nhất, database sẽ tự động khóa dòng dữ liệu trong suốt quá trình thực thi lệnh — không có "khoảng hở" nào để một request khác chen vào giữa bước đọc và bước ghi.
 
-### 6.3.2. Kết hợp kiểm tra điều kiện
+### 6.4.2. Kết hợp kiểm tra điều kiện
 
 Atomic Update có thể kết hợp thêm điều kiện để tránh giá trị âm (ví dụ: không cho trừ kho khi không đủ hàng):
 
@@ -177,9 +373,9 @@ Nếu điều kiện `stock >= 5` không thỏa mãn, câu lệnh không cập n
 
 ---
 
-## 6.4. Idempotency
+## 6.5. Idempotency
 
-### 6.4.1. Bản chất
+### 6.5.1. Bản chất
 
 **Idempotency (tính lũy đẳng)** là tính chất của một thao tác: **dù được gọi một lần hay nhiều lần với cùng đầu vào, kết quả cuối cùng trên hệ thống vẫn giống hệt nhau như khi chỉ gọi một lần**.
 
@@ -192,11 +388,11 @@ flowchart LR
     C -->|"(3) Lỗi khi phản hồi về"| A
 ```
 
-Ở cả ba trường hợp, client chỉ thấy **một hiện tượng duy nhất: không nhận được response** — nhưng thực tế có thể server **đã xử lý xong** (trường hợp 3). Phản ứng tự nhiên của client (hoặc cơ chế Retry ở mục 6.5) là **gửi lại request** — và nếu thao tác đó không idempotent (ví dụ: "trừ tiền", "tạo đơn hàng"), việc gửi lại sẽ khiến thao tác bị thực hiện hai lần, gây hậu quả nghiêm trọng (trừ tiền hai lần, tạo đơn hàng trùng).
+Ở cả ba trường hợp, client chỉ thấy **một hiện tượng duy nhất: không nhận được response** — nhưng thực tế có thể server **đã xử lý xong** (trường hợp 3). Phản ứng tự nhiên của client (hoặc cơ chế Retry ở mục 6.6) là **gửi lại request** — và nếu thao tác đó không idempotent (ví dụ: "trừ tiền", "tạo đơn hàng"), việc gửi lại sẽ khiến thao tác bị thực hiện hai lần, gây hậu quả nghiêm trọng (trừ tiền hai lần, tạo đơn hàng trùng).
 
 Đây chính là lý do idempotency là yêu cầu **bắt buộc** đối với mọi API có thể bị retry — tức gần như mọi API ghi dữ liệu quan trọng.
 
-### 6.4.2. Các phương thức HTTP và tính idempotent
+### 6.5.2. Các phương thức HTTP và tính idempotent
 
 | Phương thức | Idempotent? | Giải thích |
 |---|---|---|
@@ -207,7 +403,7 @@ flowchart LR
 
 Đây chính là lý do các API `POST` quan trọng (tạo đơn hàng, thanh toán, chuyển tiền) cần được chủ động bổ sung cơ chế idempotency, vì bản chất của `POST` vốn không đảm bảo tính chất này.
 
-### 6.4.3. Cách hoạt động — Idempotency Key
+### 6.5.3. Cách hoạt động — Idempotency Key
 
 Cơ chế phổ biến nhất là **Idempotency Key**: client tự sinh ra một mã định danh duy nhất (thường là UUID) cho **mỗi ý định thao tác nghiệp vụ** (không phải cho mỗi lần gửi request), và gửi kèm mã này trong mọi lần gọi — kể cả các lần gọi lại do retry.
 
@@ -254,7 +450,7 @@ export class IdempotencyInterceptor implements NestInterceptor {
 }
 ```
 
-### 6.4.4. Lưu ý khi thiết kế Idempotency Key
+### 6.5.4. Lưu ý khi thiết kế Idempotency Key
 
 - Key nên do **client sinh ra** (thường là UUID) vì chỉ client mới biết chắc đây là lần thử lại của cùng một ý định thao tác, hay là một thao tác mới hoàn toàn.
 - Key cần có thời gian sống hợp lý (ví dụ 24 giờ) — không cần lưu vĩnh viễn.
@@ -262,15 +458,15 @@ export class IdempotencyInterceptor implements NestInterceptor {
 
 ---
 
-## 6.5. Retry
+## 6.6. Retry
 
-### 6.5.1. Bản chất
+### 6.6.1. Bản chất
 
 Nếu Idempotency đảm bảo *an toàn khi gọi lại*, thì **Retry** là cơ chế *chủ động gọi lại* khi một thao tác thất bại — dựa trên một quan sát thực tế: phần lớn lỗi trong hệ thống phân tán là **lỗi tạm thời (transient)**, tự khỏi sau một khoảng thời gian ngắn (mạng nghẽn tạm thời, server đang quá tải, database đang restart...). Retry giúp hệ thống tự phục hồi trước những lỗi tạm thời này mà không cần can thiệp thủ công.
 
-Tuy nhiên, Retry **chỉ an toàn khi thao tác đó là idempotent** — đây là lý do mục 6.4 và 6.5 luôn đi liền với nhau: Retry là nguyên nhân khiến một request có thể bị gọi nhiều lần, còn Idempotency là điều kiện để việc gọi nhiều lần đó không gây hậu quả.
+Tuy nhiên, Retry **chỉ an toàn khi thao tác đó là idempotent** — đây là lý do mục 6.5 và 6.6 luôn đi liền với nhau: Retry là nguyên nhân khiến một request có thể bị gọi nhiều lần, còn Idempotency là điều kiện để việc gọi nhiều lần đó không gây hậu quả.
 
-### 6.5.2. Retryable Error — Không phải lỗi nào cũng nên Retry
+### 6.6.2. Retryable Error — Không phải lỗi nào cũng nên Retry
 
 Việc retry một cách mù quáng với mọi loại lỗi không những vô ích mà còn có thể làm tình hình tệ hơn (ví dụ: retry liên tục vào một server đang quá tải sẽ khiến nó quá tải nặng hơn). Cần phân biệt rõ hai nhóm lỗi:
 
@@ -279,7 +475,7 @@ Việc retry một cách mù quáng với mọi loại lỗi không những vô 
 | **Lỗi tạm thời (Retryable)** | Timeout, `503 Service Unavailable`, mất kết nối mạng | Có | Nguyên nhân thường tự hết sau một khoảng thời gian |
 | **Lỗi cố định (Non-retryable)** | `400 Bad Request`, `401 Unauthorized`, `404 Not Found` | Không | Dữ liệu hoặc yêu cầu bản thân nó sai — gọi lại bao nhiêu lần cũng nhận cùng một lỗi |
 
-### 6.5.3. Exponential Backoff
+### 6.6.3. Exponential Backoff
 
 Nếu retry ngay lập tức và liên tục, hàng loạt client cùng retry cùng lúc có thể tạo ra một đợt tấn công request dồn dập vào hệ thống đang gặp sự cố — hiện tượng gọi là **retry storm**, khiến hệ thống vốn đã yếu càng khó phục hồi hơn.
 
@@ -295,11 +491,11 @@ flowchart LR
 
 Công thức phổ biến: `delay = base_delay × 2^(số lần đã thử)`, thường kết hợp thêm **jitter** (thêm một khoảng ngẫu nhiên nhỏ vào delay) để tránh việc nhiều client cùng đồng loạt retry tại chính xác cùng một thời điểm.
 
-### 6.5.4. Max Retry
+### 6.6.4. Max Retry
 
 Retry không thể lặp lại vô hạn — cần giới hạn **số lần thử tối đa**. Nếu vượt quá giới hạn này mà vẫn thất bại, hệ thống cần dừng lại và xử lý theo hướng khác (báo lỗi cho người dùng, đẩy vào hàng đợi lỗi để xử lý thủ công — xem Dead Letter Queue ở Chương 7).
 
-### 6.5.5. Ví dụ minh họa trong NestJS
+### 6.6.5. Ví dụ minh họa trong NestJS
 
 ```ts
 async function retryWithBackoff<T>(
@@ -327,7 +523,7 @@ function isRetryableError(error: any): boolean {
 }
 ```
 
-### 6.5.6. Lưu ý khi sử dụng Retry
+### 6.6.6. Lưu ý khi sử dụng Retry
 
 - Chỉ áp dụng cho thao tác **idempotent** hoặc thao tác đọc.
 - Luôn kết hợp với **Max Retry** để tránh lặp vô hạn.
@@ -338,4 +534,4 @@ function isRetryableError(error: any): boolean {
 
 ## Tổng kết chương
 
-Chương này xoay quanh một chủ đề cốt lõi: **dữ liệu chỉ đúng khi hệ thống lường trước được sự đồng thời và sự gián đoạn**. Validation thiết lập ranh giới dữ liệu tin cậy ngay từ đầu vào. Concurrency cho thấy vì sao các thao tác "đọc rồi ghi" tưởng chừng vô hại lại có thể gây sai lệch dữ liệu khi có nhiều request cùng lúc, và Atomic Update là cách xử lý tận gốc bằng cách đẩy logic xuống database. Idempotency đảm bảo một thao tác có thể được gọi lại an toàn, còn Retry tận dụng chính sự an toàn đó để hệ thống tự phục hồi trước các lỗi tạm thời. Bốn khái niệm này không tách rời nhau — chúng là bốn góc nhìn của cùng một nguyên tắc thiết kế: **luôn giả định điều bất ngờ sẽ xảy ra, và thiết kế hệ thống để vẫn đúng trong tình huống đó**.
+Chương này xoay quanh một chủ đề cốt lõi: **dữ liệu chỉ đúng khi hệ thống lường trước được sự đồng thời và sự gián đoạn**. Validation thiết lập ranh giới dữ liệu tin cậy ngay từ đầu vào. Concurrency cho thấy vì sao các thao tác "đọc rồi ghi" tưởng chừng vô hại lại có thể gây sai lệch dữ liệu khi có nhiều request cùng lúc. Các cơ chế Locking (Pessimistic và Optimistic) cung cấp các chiến lược khóa để bảo vệ dữ liệu ở mức ứng dụng và database, trong khi Atomic Update xử lý tận gốc các phép toán đơn giản bằng cách đẩy logic trực tiếp xuống database. Idempotency đảm bảo một thao tác có thể được gọi lại an toàn, còn Retry tận dụng chính sự an toàn đó để hệ thống tự phục hồi trước các lỗi tạm thời. Các khái niệm này không tách rời nhau — chúng là các góc nhìn của cùng một nguyên tắc thiết kế: **luôn giả định điều bất ngờ sẽ xảy ra, và thiết kế hệ thống để vẫn đúng trong tình huống đó**.

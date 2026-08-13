@@ -48,7 +48,7 @@ Ngoài versioning qua URL (phổ biến nhất vì dễ nhìn thấy, dễ debug
 
 ### 3.1.5. Idempotent Method
 
-Khái niệm này đã được trình bày sâu ở Chương 6 (mục 6.4) khi bàn về Idempotency trong xử lý dữ liệu. Ở góc độ thiết kế API, cần nhấn mạnh: việc một HTTP Method có idempotent theo đúng chuẩn hay không **là một cam kết thiết kế**, không phải điều tự động đúng chỉ vì chọn đúng method. Ví dụ `PUT` được xem là idempotent theo chuẩn REST, nhưng nếu lập trình viên triển khai sai (ví dụ để `PUT` vô tình tạo thêm bản ghi mới mỗi lần gọi), API đó vi phạm chính hợp đồng mà bản thân HTTP Method đã ngầm cam kết với người dùng API.
+Khái niệm này đã được trình bày sâu ở Chương 6 (mục 6.5) khi bàn về Idempotency trong xử lý dữ liệu. Ở góc độ thiết kế API, cần nhấn mạnh: việc một HTTP Method có idempotent theo đúng chuẩn hay không **là một cam kết thiết kế**, không phải điều tự động đúng chỉ vì chọn đúng method. Ví dụ `PUT` được xem là idempotent theo chuẩn REST, nhưng nếu lập trình viên triển khai sai (ví dụ để `PUT` vô tình tạo thêm bản ghi mới mỗi lần gọi), API đó vi phạm chính hợp đồng mà bản thân HTTP Method đã ngầm cam kết với người dùng API.
 
 ### 3.1.6. Stateless
 
