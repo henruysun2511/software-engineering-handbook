@@ -1,6 +1,6 @@
 # Software Engineering Handbook
 
-Tài liệu học tập lộ trình **Software Engineer / Fullstack Developer** — viết bằng tiếng Việt, theo phong cách thực chiến. Nội dung được thiết kế cho người đã có nền tảng lập trình, học nhanh theo hướng áp dụng vào dự án thực tế, đi từ nền tảng cơ bản tới các chủ đề nâng cao (concurrency, security, deployment, phỏng vấn).
+Tài liệu học tập lộ trình **Software Engineer / Fullstack Developer** — viết bằng tiếng Việt, theo phong cách thực chiến. Nội dung được thiết kế cho người đã có nền tảng lập trình, học nhanh theo hướng áp dụng vào dự án thực tế, đi từ nền tảng cơ bản tới các chủ đề nâng cao (concurrency, security, deployment).
 
 ## Mục lục
 
@@ -12,7 +12,7 @@ Tài liệu học tập lộ trình **Software Engineer / Fullstack Developer** 
 | [`mobile/`](mobile/) | Mobile: Flutter, React Native |
 | [`devops/`](devops/) | DevOps: Linux, Docker, CI/CD, Reverse Proxy, Deployment, Cloud, Monitoring |
 | [`testing/`](testing/) | Kiểm thử: Backend Testing, Frontend Testing |
-| [`dsa/`](dsa/) | Cấu trúc dữ liệu & Giải thuật (ôn nhanh cho phỏng vấn) |
+| [`dsa/`](dsa/) | Cấu trúc dữ liệu & Giải thuật |
 
 ## Lộ trình đề xuất
 
@@ -23,7 +23,7 @@ Tài liệu học tập lộ trình **Software Engineer / Fullstack Developer** 
 3. **Frontend** — [`frontend/`](frontend/chuong-04-react.md) → [`frontend/`](frontend/chuong-05-nextjs.md)
 4. **Kiểm thử** — [`testing/`](testing/)
 5. **DevOps** — [`devops/`](devops/)
-6. **Ôn tập phỏng vấn** — [`dsa/`](dsa/)
+6. **Học thêm về thuật toán** — [`dsa/`](dsa/)
 
 ## Chi tiết các chương
 
