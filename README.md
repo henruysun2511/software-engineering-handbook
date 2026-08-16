@@ -89,7 +89,37 @@ Tài liệu học tập lộ trình **Software Engineer / Fullstack Developer** 
 
 - **Mobile:** [`flutter.md`](mobile/flutter.md) · [`react-native.md`](mobile/react-native.md)
 - **Testing:** [`be-testing.md`](testing/be-testing.md) · [`fe-testing.md`](testing/fe-testing.md)
-- **DSA:** [`CTDL-On-Nhanh.md`](dsa/CTDL-On-Nhanh.md)
+
+### DSA
+
+| Chương | Nội dung |
+|---|---|
+| [Chương 0](dsa/chuong-00-nen-tang-va-ky-nang-phong-van.md) | Nền tảng & Kỹ năng phỏng vấn |
+| [Chương 1](dsa/chuong-01-array.md) | Array |
+| [Chương 2](dsa/chuong-02-string.md) | String |
+| [Chương 3](dsa/chuong-03-hash-table.md) | Hash Table |
+| [Chương 4](dsa/chuong-04-two-pointers.md) | Two Pointers |
+| [Chương 5](dsa/chuong-05-sliding-window.md) | Sliding Window |
+| [Chương 6](dsa/chuong-06-linked-list.md) | Linked List |
+| [Chương 7](dsa/chuong-07-stack.md) | Stack |
+| [Chương 8](dsa/chuong-08-queue-deque.md) | Queue & Deque |
+| [Chương 9](dsa/chuong-09-heap.md) | Heap |
+| [Chương 10](dsa/chuong-10-binary-search.md) | Binary Search |
+| [Chương 11](dsa/chuong-11-sorting.md) | Sorting |
+| [Chương 12](dsa/chuong-12-recursion.md) | Recursion |
+| [Chương 13](dsa/chuong-13-backtracking.md) | Backtracking |
+| [Chương 14](dsa/chuong-14-binary-tree.md) | Binary Tree |
+| [Chương 15](dsa/chuong-15-binary-search-tree.md) | Binary Search Tree |
+| [Chương 16](dsa/chuong-16-trie.md) | Trie |
+| [Chương 17](dsa/chuong-17-graph-fundamentals.md) | Graph Fundamentals |
+| [Chương 18](dsa/chuong-18-bfs.md) | BFS |
+| [Chương 19](dsa/chuong-19-dfs.md) | DFS |
+| [Chương 20](dsa/chuong-20-topological-sort.md) | Topological Sort |
+| [Chương 21](dsa/chuong-21-union-find.md) | Union-Find (DSU) |
+| [Chương 22](dsa/chuong-22-dijkstra.md) | Dijkstra |
+| [Chương 23](dsa/chuong-23-greedy.md) | Greedy |
+
+- **Tài liệu thêm:** [`ôn nhanh`](dsa/on-nhanh.md) · [`mục lục`](dsa/muc-luc.md) · [`lời giải contest`](dsa/contest_solutions.md)
 
 ## Định dạng tài liệu
 
