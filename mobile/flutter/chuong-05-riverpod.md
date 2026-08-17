@@ -1005,6 +1005,125 @@ class _CartSummary extends StatelessWidget {
 
 ---
 
+## 5.10. Cách Viết Tay — Không Dùng Codegen
+
+Từ đầu chương tới giờ, mọi provider đều được khai báo bằng `@riverpod` và sinh code bằng `build_runner`. Đây là cách hiện đại, được khuyến nghị cho production. Tuy nhiên **cách viết tay vẫn hoàn toàn hợp lệ**: ít dependency, không cần `build_runner`/`custom_lint`, và dễ hiểu được bản chất hơn khi mới học.
+
+> Dự án mẫu `flutter_starter` đang dùng **cách viết tay** toàn bộ (không có `riverpod_generator`, không file `.g.dart`). Mục này mô tả đúng code thật trong dự án đó.
+
+### 5.10.1. Bảng Chuyển Đổi Codegen → Viết Tay
+
+| Codegen (`@riverpod`) | Viết tay | Dùng cho |
+|---|---|---|
+| `Dio dio(DioRef ref)` | `final dioProvider = Provider<Dio>((ref) => ...)` | Hằng số / Dependency Injection |
+| `Future<X> x(XRef ref)` | `final xProvider = FutureProvider<X>((ref) => ...)` | Fetch data một lần |
+| `Stream<X> x(XRef ref)` | `final xProvider = StreamProvider<X>((ref) => ...)` | Realtime data |
+| `class SortOrder extends _$SortOrder` | `final sortOrderProvider = StateProvider<ProductSortOrder>(...)` | State primitive đơn giản |
+| `class Cart extends _$Cart` | `StateNotifierProvider` (Riverpod 2) hoặc `NotifierProvider` (Riverpod 3) | State + logic phức tạp |
+| `class ProductList extends _$ProductList` | `AsyncNotifierProvider` | State async + logic |
+
+Khi đã có provider (bất kể viết thế nào), cách dùng ở widget **giống hệt nhau**: `ref.watch(xProvider)`, `ref.read(xProvider.notifier).method()`, `.when(...)`.
+
+### 5.10.2. Riverpod 2 — StateNotifier + StateNotifierProvider (code thật của `flutter_starter`)
+
+`flutter_starter` đang dùng `flutter_riverpod ^2.5.0`, style chính thức của Riverpod 2:
+
+```dart
+// lib/features/auth/presentation/providers/auth_provider.dart
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+class AuthNotifier extends StateNotifier<AsyncValue<User?>> {
+  AuthNotifier(this._repository) : super(const AsyncValue.loading()) {
+    checkAuthStatus(); // side effect khởi tạo đặt trong constructor
+  }
+
+  Future<void> checkAuthStatus() async {
+    state = const AsyncValue.loading();
+    try {
+      state = AsyncValue.data(await _repository.getCurrentUser());
+    } on AppException catch (e, st) {
+      state = AsyncValue.error(e, st);
+    }
+  }
+
+  Future<void> login({required String email, required String password}) async {
+    state = const AsyncValue.loading();
+    try {
+      state = AsyncValue.data(
+        await _repository.login(email: email, password: password),
+      );
+    } on AppException catch (e, st) {
+      state = AsyncValue.error(e, st);
+    }
+  }
+}
+
+// Khai báo provider viết tay — thay cho annotation @riverpod
+final authNotifierProvider =
+    StateNotifierProvider<AuthNotifier, AsyncValue<User?>>((ref) {
+  return AuthNotifier(ref.watch(authRepositoryProvider)); // DI qua ref.watch
+});
+```
+
+**Điểm mấu chốt:**
+- Mọi `@riverpod class X extends _$X` có cú pháp viết tay tương đương: `StateNotifier<State>` + `StateNotifierProvider<Class, State>`.
+- Side effect khởi tạo đặt trong **constructor** (gọi `checkAuthStatus()`), thay vì override `build()` như `AsyncNotifier`.
+- `AsyncValue<T>` tự quản lý loading/data/error — giống hệt khi codegen.
+- Provider derived (như `isAuthenticatedProvider`) cũng viết tay được: `ref.watch(authNotifierProvider).maybeWhen(data: ..., orElse: ...)`.
+
+### 5.10.3. Riverpod 3 — Notifier Viết Tay (hiện đại, không codegen)
+
+Riverpod 3 vẫn cho phép viết tay, nhưng thay `StateNotifier` bằng `Notifier`/`AsyncNotifier` (`StateNotifier` bị deprecate từ 3.0):
+
+```dart
+// Notifier đồng bộ
+final cartProvider = NotifierProvider<CartNotifier, CartState>(CartNotifier.new);
+
+class CartNotifier extends Notifier<CartState> {
+  @override
+  CartState build() => const CartState(); // khởi tạo trong build() thay vì constructor
+
+  void addItem(Product product) {
+    state = state.copyWith(items: [...state.items, CartItem(product: product)]);
+  }
+
+  void clear() => state = const CartState();
+}
+
+// AsyncNotifier cho state nạp từ API
+final postsProvider = AsyncNotifierProvider<PostsNotifier, List<Post>>(PostsNotifier.new);
+
+class PostsNotifier extends AsyncNotifier<List<Post>> {
+  @override
+  Future<List<Post>> build() async {
+    return ref.watch(homeRepositoryProvider).getPosts(); // DI qua ref.watch
+  }
+
+  Future<void> refresh() async {
+    state = AsyncValue.data(await ref.read(homeRepositoryProvider).getPosts());
+  }
+}
+```
+
+**Điểm mấu chốt:**
+- `build()` thay cho constructor khi xử lý side effect khởi tạo — khác biệt lớn nhất so với `StateNotifier` ở 5.10.2 (chạy lại khi phụ thuộc thay đổi, còn có thể `ref.invalidate`).
+- `AsyncNotifier` build trả `Future<T>`, `state` là `AsyncValue<T>` — cú pháp dùng ở widget không đổi.
+- Về vòng đời: viết tay mặc định **keep-alive** (provider sống suốt app); autoDispose phải khai rõ `NotifierProvider.autoDispose`. (Khi codegen, ngược lại: mặc định autoDispose, muốn keep-alive thì khai `@Riverpod(keepAlive: true)`.)
+
+### 5.10.4. Nên Chọn Cách Nào?
+
+| Tiêu chí | Viết tay | Codegen |
+|---|---|---|
+| Dependency & setup | Tối thiểu, không build_runner | Thêm riverpod_generator, build_runner, (custom_lint) |
+| Học bản chất Riverpod | Dễ hơn — nhìn thấy toàn bộ provider | Provider sinh tự động, khó thấy |
+| Boilerplate khi project lớn | Nhiều (mỗi provider một khối khai báo) | Gọn |
+| Độ khuyến nghị | Phù hợp starter / học tập | Hướng đi chính thức cho production |
+| Tương lai | Nên dùng `Notifier` (StateNotifier bị deprecate ở 3.0) | Theo khuyến nghị chính thức |
+
+> **Lời khuyên:** mới học nên viết tay với `Notifier` để hiểu bản chất; production nên dùng codegen. `flutter_starter` chọn viết tay kiểu Riverpod 2 (`StateNotifier`) để giữ starter nhẹ và dễ đọc — nếu muốn nâng cấp lên chuẩn mới, chỉ cần thay đổi riêng phần provider (mục 5.10.3), UI widget không phải sửa.
+
+---
+
 ## Tóm Tắt Chương 5
 
 | Khái niệm | Điểm Cốt Lõi |
@@ -1021,5 +1140,6 @@ class _CartSummary extends StatelessWidget {
 | ref.listen | Side effect: navigate, snackbar, log |
 | .select() | Tối ưu rebuild — chỉ listen phần cần |
 | Family | Provider có tham số — mỗi tham số là instance độc lập |
+| Viết tay (mục 5.10) | `StateNotifier`/`Notifier` + `StateNotifierProvider`/`NotifierProvider` — cách `flutter_starter` đang dùng, không cần build_runner |
 
 > **Nguyên tắc kiến trúc:** Provider không phải chỉ để quản lý state UI — chúng là lớp Dependency Injection của toàn app. Repository, Service, Config đều nên được expose qua Provider. Khi cần test, chỉ cần override provider bằng mock — không cần thay đổi widget code.

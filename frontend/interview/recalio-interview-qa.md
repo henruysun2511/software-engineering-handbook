@@ -674,3 +674,334 @@ Guard check `!w.templateId` catch cả `""` lẫn `null`/`undefined`, đưa ra t
 
 *Tổng cộng: 19 câu hỏi & trả lời cho Recalio*
 *File nguồn: `image-occlusion-editor.tsx`, `image-occlusion-card-view.tsx`, `cloze-editor.tsx`, `card-preview.tsx` (×2), `word-item.tsx`, `ai-generate-from-text-tab.tsx`, `ai-generate-from-topic-tab.tsx`, `ai-generate-from-image-tab.tsx`, `page.tsx` (create-notes), `page.tsx` (study-session-detail), `review-card.tsx`*
+
+---
+
+## PHẦN 7 — FLASHCARD REVIEW SESSION
+
+---
+
+### Câu 20: `StudySessionPage` có 3 phase: loading → studying → done. Flow khởi tạo session diễn ra như thế nào?
+
+**Trả lời:**
+
+```ts
+type Phase = "loading" | "studying" | "done"
+const [phase, setPhase] = useState<Phase>("loading")
+const initializedRef = useRef(false)
+const sessionStartedRef = useRef(false)
+
+useEffect(() => {
+  if (initializedRef.current) return         // Guard: chỉ chạy một lần
+  if (cardsLoading || cardsRes === undefined) return  // Chờ data
+
+  const dueCards = (cardsRes?.data || []) as any[]
+  initializedRef.current = true
+
+  if (dueCards.length === 0) {
+    setPhase("done")                          // Không có thẻ → done ngay
+  } else {
+    setAllCards(dueCards)
+    startTimeRef.current = performance.now()  // Bắt đầu tính thời gian
+    startSession().then(() => setPhase("studying"))
+  }
+}, [cardsLoading, cardsRes])
+```
+
+**`initializedRef`** guard tránh effect chạy lại khi `cardsRes` re-render (ví dụ TanStack Query background refetch). Không dùng `useCallback` cho logic này vì chỉ cần chạy đúng một lần.
+
+**`startSession`** có guard riêng bằng `sessionStartedRef`:
+```ts
+const startSession = useCallback(async () => {
+  if (sessionStartedRef.current) return     // Đã tạo session rồi thì skip
+  sessionStartedRef.current = true
+  if (urlSessionId) {
+    sessionIdRef.current = urlSessionId     // Dùng session có sẵn từ URL
+    return
+  }
+  const res = await createSession.mutateAsync({ deckId })
+  sessionIdRef.current = res.data?.id
+}, [deckId, createSession, urlSessionId])
+```
+
+`urlSessionId` từ search param — dùng khi user navigate trực tiếp vào một session cụ thể (ví dụ từ study history). Nếu không có thì tạo session mới.
+
+---
+
+### Câu 21: `handleRating` — flow xử lý khi user bấm Again/Hard/Good/Easy?
+
+**Trả lời:**
+
+```ts
+const handleRating = async (rating: ReviewRating) => {
+  if (submitting || !currentCard || !flipped) return  // Guard
+
+  // Đặc biệt: nếu là type-answer card, cần check answer trước khi rate
+  if (isTypeAnswer && !answerResult) {
+    const expected = fieldMap["Text"] || ""
+    const correct = typedAnswer.trim().toLowerCase() === expected.trim().toLowerCase()
+    setAnswerResult({ correct, expected })
+    setSubmitting(false)
+    return  // ← Return sớm, chưa gửi rating lên server
+  }
+
+  const responseTimeMs = Math.round(performance.now() - startTimeRef.current)
+  const data: ReviewCardInput = { rating, responseTimeMs }
+  if (sessionIdRef.current) data.sessionId = sessionIdRef.current
+
+  try {
+    await reviewCard.mutateAsync({ id: currentCard.id, data })
+
+    // Cập nhật stats local
+    setStats((prev) => ({
+      ...prev,
+      reviewed: prev.reviewed + 1,
+      [rating.toLowerCase()]: prev[rating.toLowerCase()] + 1,
+    }))
+
+    if (isLastCard) {
+      await endSession.mutateAsync(sessionIdRef.current)
+      setPhase("done")
+    } else {
+      setCurrentIndex((i) => i + 1)  // Sang thẻ tiếp theo
+      setFlipped(false)
+      setTypedAnswer("")
+      setAnswerResult(null)
+      startTimeRef.current = performance.now()  // Reset timer cho thẻ mới
+    }
+  } catch (err) {
+    handleError(err, "Ghi nhận kết quả thất bại")
+  }
+}
+```
+
+**`responseTimeMs`** được tính bằng `performance.now()` — độ chính xác millisecond, không bị ảnh hưởng bởi system clock skew. Server dùng thời gian này để điều chỉnh scheduling algorithm (card trả lời nhanh = thuộc tốt → interval dài hơn).
+
+**Guard `!flipped`:** Tránh user bấm rating khi chưa xem mặt sau — chỉ cho phép rate sau khi đã flip card.
+
+---
+
+### Câu 22: Type-answer card có flow 2 bước. Tại sao cần 2 lần bấm?
+
+**Trả lời:**
+
+```ts
+const isTypeAnswer = useMemo(
+  () => hasTypeMarker(currentCard?.backHtml ?? ""),
+  [currentCard]
+)
+// hasTypeMarker check: /{{type:([^}]+)}}/i.test(html)
+```
+
+**Bước 1 — Flip + gõ đáp án:**
+```tsx
+{flipped && isTypeAnswer && !answerResult && (
+  <input
+    ref={inputRef}
+    value={typedAnswer}
+    onKeyDown={(e) => { if (e.key === "Enter") handleRating(ReviewRating.GOOD) }}
+    placeholder="Gõ đáp án của bạn..."
+  />
+)}
+```
+
+**Bước 2 — Bấm rating (hoặc Enter):**
+Lần bấm đầu tiên vào rating button khi `!answerResult`:
+```ts
+if (isTypeAnswer && !answerResult) {
+  const correct = typedAnswer.trim().toLowerCase() === expected.trim().toLowerCase()
+  setAnswerResult({ correct, expected })
+  return  // ← Không gửi API, chỉ show kết quả
+}
+```
+
+User thấy kết quả đúng/sai, rồi tự chọn rating thực sự (lần bấm thứ 2 mới gửi API).
+
+**Lý do 2 bước:** Type-answer chỉ check đúng/sai cơ bản (lowercase trim). User tự đánh giá mức độ — "GOOD" dù gõ đúng nhưng còn do dự, hoặc "EASY" nếu nhớ ngay. Server nhận rating cuối cùng user chọn, không phải kết quả đúng/sai tự động.
+
+```tsx
+{answerResult && (
+  <div className={`flex items-center gap-2 rounded-xl px-4 py-2 ${answerResult.correct ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+    {answerResult.correct
+      ? <><Check /> Chính xác!</>
+      : <><XIcon /> Đáp án: <span className="font-black">{answerResult.expected}</span></>
+    }
+  </div>
+)}
+```
+
+---
+
+### Câu 23: `handleSkip` — bury vs suspend khác nhau như thế nào?
+
+**Trả lời:**
+
+```ts
+const handleSkip = async (action: "bury" | "suspend") => {
+  if (!currentCard || submitting) return
+  try {
+    if (action === "bury") {
+      await buryCard.mutateAsync(currentCard.id)   // Ẩn đến hết ngày
+    } else {
+      await suspendCard.mutateAsync(currentCard.id) // Tạm dừng vĩnh viễn
+    }
+    // Flow giống handleRating: sang thẻ tiếp hoặc phase done
+  }
+}
+```
+
+Đây là 2 khái niệm của spaced repetition:
+
+- **Bury** (Ẩn): Card bị ẩn đến **hết ngày**. Ngày mai card xuất hiện lại bình thường trong due queue. Dùng khi không muốn ôn card này hôm nay (ví dụ quá khó cần suy nghĩ thêm).
+
+- **Suspend** (Tạm dừng): Card bị loại khỏi due queue **vĩnh viễn** cho đến khi user manually unsuspend. Dùng khi card không còn cần thiết nữa hoặc sai nội dung.
+
+UI hiển thị tooltip giải thích:
+```tsx
+<button title="Ẩn thẻ đến hết ngày">  {/* Bury */}
+<button title="Tạm dừng thẻ vĩnh viễn">  {/* Suspend */}
+```
+
+---
+
+### Câu 24: `startTimeRef` đo response time. Tại sao reset sau mỗi thẻ, không phải sau mỗi flip?
+
+**Trả lời:**
+
+```ts
+// Khởi tạo khi bắt đầu session
+startTimeRef.current = performance.now()
+
+// Sau khi rate xong, reset cho thẻ TIẾP THEO
+setCurrentIndex((i) => i + 1)
+setFlipped(false)
+startTimeRef.current = performance.now()  // ← Reset ở đây
+
+// Gửi lên server khi rate
+const responseTimeMs = Math.round(performance.now() - startTimeRef.current)
+```
+
+`responseTimeMs` đo thời gian từ **khi thẻ mới xuất hiện** đến khi user bấm rating — bao gồm cả thời gian đọc mặt trước lẫn thời gian xem mặt sau. Đây là "total thinking time" cho một thẻ.
+
+Nếu reset sau flip, chỉ đo thời gian từ lúc flip đến lúc rate — bỏ qua thời gian đọc mặt trước (quan trọng với thẻ có hình ảnh/audio phức tạp).
+
+FSRS algorithm dùng `responseTimeMs` làm một trong các tín hiệu: trả lời rất nhanh (< 1s) dù chọn "Hard" có thể là do card quá quen → tăng interval. Trả lời chậm dù chọn "Good" → giảm interval.
+
+---
+
+### Câu 25: Session có 3 mode: `normal`, `cram`, `preview`. Khác nhau như thế nào?
+
+**Trả lời:**
+
+```ts
+const urlMode = (searchParams.get('mode') as 'cram' | 'preview' | null) ?? undefined
+const isCustomSession = urlMode === 'cram' || urlMode === 'preview'
+
+const { data: cardsRes } = useDueCards({
+  deckId,
+  page: 1,
+  limit: 200,
+  mode: urlMode ?? 'normal'  // Truyền mode xuống API
+})
+```
+
+- **`normal`** (default): Chỉ fetch cards đến hạn ôn theo spaced repetition schedule. Đây là mode học thông thường — FSRS quyết định card nào cần ôn hôm nay.
+
+- **`cram`**: Fetch **tất cả cards** trong deck kể cả chưa đến hạn — dùng trước kỳ thi để ôn dồn. UI hiện badge "Cram" màu tím. Rating vẫn gửi lên server nhưng server có thể không cập nhật scheduling (tùy business logic).
+
+- **`preview`**: Fetch cards để xem trước, không tính vào review history. Dùng khi muốn browse qua deck mà không muốn ảnh hưởng scheduling.
+
+Session chỉ được tạo (`createSession`) với mode `normal`. Với `cram`/`preview`, `isCustomSession = true` → có thể dùng `urlSessionId` từ URL thay vì tạo mới.
+
+---
+
+### Câu 26: `accuracy` trong màn hình "done" được tính như thế nào? Có chính xác không?
+
+**Trả lời:**
+
+```ts
+const accuracy = total > 0
+  ? Math.round(((stats.good + stats.easy) / total) * 100)
+  : 0
+```
+
+`accuracy` tính tỷ lệ cards được đánh giá **Good hoặc Easy** (tức là nhớ được) trên tổng số cards đã ôn. Cards đánh giá Again hoặc Hard không tính vào "chính xác".
+
+**Hạn chế:** Đây là metric đơn giản, không hoàn toàn chính xác về mặt học thuật vì:
+- User có thể đánh giá sai (bấm Easy dù thực ra không chắc)
+- Không tính trọng số theo difficulty của card
+- Card bị bury/suspend không được count vào `total`
+
+Nhưng với mục đích UX — cho user thấy họ làm tốt đến mức nào trong session — metric này đủ hữu ích và dễ hiểu.
+
+```tsx
+// Nút "Xem chi tiết" navigate đến StudySessionDetailPage
+<button onClick={() =>
+  router.push(sessionIdRef.current
+    ? `/study/session/${sessionIdRef.current}`
+    : "/study")
+}>
+  Xem chi tiết
+</button>
+```
+
+`sessionIdRef.current` được dùng thay vì `sessionId` state vì tại thời điểm navigate, đảm bảo có giá trị mới nhất (tránh stale closure).
+
+---
+
+### Câu 27: Keyboard shortcuts trong review — implement như thế nào?
+
+**Trả lời:**
+
+```ts
+useEffect(() => {
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if (phase !== "studying") return
+
+    // Space/Enter: flip card
+    if ((e.code === "Space" || e.code === "Enter") && !flipped) {
+      e.preventDefault()
+      handleFlip()
+      return
+    }
+
+    // Số 1-4: rating (chỉ sau khi flip)
+    if (flipped && !submitting) {
+      const keyMap: Record<string, ReviewRating> = {
+        "1": ReviewRating.AGAIN,
+        "2": ReviewRating.HARD,
+        "3": ReviewRating.GOOD,
+        "4": ReviewRating.EASY,
+      }
+      if (keyMap[e.key]) {
+        e.preventDefault()
+        handleRating(keyMap[e.key])
+      }
+    }
+  }
+
+  window.addEventListener("keydown", handleKeyDown)
+  return () => window.removeEventListener("keydown", handleKeyDown)
+}, [phase, flipped, submitting, handleRating, handleFlip])
+```
+
+Space/Enter flip card khi chưa flip. Phím 1-4 map sang 4 rating tương ứng. Guard `!flipped` tránh accidental rating trước khi xem đáp án. Guard `!submitting` tránh double-submit khi bấm liên tiếp.
+
+Input của type-answer card dùng `onKeyDown` riêng:
+```tsx
+<input
+  onKeyDown={(e) => { if (e.key === "Enter") handleRating(ReviewRating.GOOD) }}
+/>
+```
+Enter trong input trigger check answer (bước 1 của type-answer flow) thay vì flip card.
+
+Hint text trên UI update theo trạng thái:
+```tsx
+{!flipped && <p>Nhấn Space hoặc chạm để lật thẻ</p>}
+{flipped && !answerResult && <p>{isTypeAnswer ? "Gõ đáp án, Enter để kiểm tra" : "Phím 1-4 để đánh giá"}</p>}
+```
+
+---
+
+*Tổng cộng: 27 câu hỏi & trả lời cho Recalio*
+*File nguồn bổ sung: `page.tsx` (study-session/[deckId])*
