@@ -1009,7 +1009,7 @@ class _CartSummary extends StatelessWidget {
 
 Từ đầu chương tới giờ, mọi provider đều được khai báo bằng `@riverpod` và sinh code bằng `build_runner`. Đây là cách hiện đại, được khuyến nghị cho production. Tuy nhiên **cách viết tay vẫn hoàn toàn hợp lệ**: ít dependency, không cần `build_runner`/`custom_lint`, và dễ hiểu được bản chất hơn khi mới học.
 
-> Dự án mẫu `flutter_starter` đang dùng **cách viết tay** toàn bộ (không có `riverpod_generator`, không file `.g.dart`). Mục này mô tả đúng code thật trong dự án đó.
+> Dự án mẫu `flutter_starter` **hiện đã chuyển sang codegen** (xem 5.2). Mục này mô tả cách viết tay — từng là code thật của dự án (bản Riverpod 2), vẫn là tham khảo tốt để hiểu bản chất trước khi để generator sinh code.
 
 ### 5.10.1. Bảng Chuyển Đổi Codegen → Viết Tay
 
@@ -1024,7 +1024,7 @@ Từ đầu chương tới giờ, mọi provider đều được khai báo bằn
 
 Khi đã có provider (bất kể viết thế nào), cách dùng ở widget **giống hệt nhau**: `ref.watch(xProvider)`, `ref.read(xProvider.notifier).method()`, `.when(...)`.
 
-### 5.10.2. Riverpod 2 — StateNotifier + StateNotifierProvider (code thật của `flutter_starter`)
+### 5.10.2. Riverpod 2 — StateNotifier + StateNotifierProvider (từng là code thật của `flutter_starter`)
 
 `flutter_starter` đang dùng `flutter_riverpod ^2.5.0`, style chính thức của Riverpod 2:
 
@@ -1120,7 +1120,7 @@ class PostsNotifier extends AsyncNotifier<List<Post>> {
 | Độ khuyến nghị | Phù hợp starter / học tập | Hướng đi chính thức cho production |
 | Tương lai | Nên dùng `Notifier` (StateNotifier bị deprecate ở 3.0) | Theo khuyến nghị chính thức |
 
-> **Lời khuyên:** mới học nên viết tay với `Notifier` để hiểu bản chất; production nên dùng codegen. `flutter_starter` chọn viết tay kiểu Riverpod 2 (`StateNotifier`) để giữ starter nhẹ và dễ đọc — nếu muốn nâng cấp lên chuẩn mới, chỉ cần thay đổi riêng phần provider (mục 5.10.3), UI widget không phải sửa.
+> **Lời khuyên:** mới học nên viết tay với `Notifier` để hiểu bản chất; production nên dùng codegen. `flutter_starter` ban đầu chọn viết tay kiểu Riverpod 2 (`StateNotifier`) để học, sau đó đã migrate sang codegen (`@riverpod` + `AsyncNotifier`, xem mục 5.2) — UI widget không phải sửa khi migrate, chỉ đổi riêng phần provider.
 
 ---
 
@@ -1140,6 +1140,6 @@ class PostsNotifier extends AsyncNotifier<List<Post>> {
 | ref.listen | Side effect: navigate, snackbar, log |
 | .select() | Tối ưu rebuild — chỉ listen phần cần |
 | Family | Provider có tham số — mỗi tham số là instance độc lập |
-| Viết tay (mục 5.10) | `StateNotifier`/`Notifier` + `StateNotifierProvider`/`NotifierProvider` — cách `flutter_starter` đang dùng, không cần build_runner |
+| Viết tay (mục 5.10) | `StateNotifier`/`Notifier` + `StateNotifierProvider`/`NotifierProvider` — từng là cách `flutter_starter` dùng, không cần build_runner |
 
 > **Nguyên tắc kiến trúc:** Provider không phải chỉ để quản lý state UI — chúng là lớp Dependency Injection của toàn app. Repository, Service, Config đều nên được expose qua Provider. Khi cần test, chỉ cần override provider bằng mock — không cần thay đổi widget code.
