@@ -22,7 +22,7 @@ Angular là một **opinionated framework**: nó đưa ra câu trả lời mặc
 
 ### Kiến trúc tổng thể
 
-M��t ứng dụng Angular được tổ chức theo các tầng sau:
+M��t ứng dụng Angular được tổ chức theo các tầng sau:
 
 ```
 Application
