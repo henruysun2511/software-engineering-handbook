@@ -1,4 +1,4 @@
-# Chương 1: Networking
+# Networking
 
 ## 1.1. Giới thiệu
 

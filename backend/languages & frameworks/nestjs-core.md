@@ -1,4 +1,4 @@
-# Chương 5: NestJS Core
+# NestJS Core
 
 ## Giới thiệu
 
@@ -8,13 +8,13 @@ Chương này đi từ bức tranh tổng thể (một request đi qua những l
 
 ---
 
-## 5.1. Kiến trúc tổng thể — Vòng đời một Request trong NestJS
+## 1. Kiến trúc tổng thể — Vòng đời một Request trong NestJS
 
-### 5.1.1. Bản chất
+### 1.1. Bản chất
 
 Trước khi đi vào từng thành phần riêng lẻ, cần hiểu **bức tranh toàn cảnh**: một request HTTP khi đi vào một ứng dụng NestJS không "rơi thẳng" vào Controller, mà phải đi qua một chuỗi các lớp xử lý trung gian, mỗi lớp đảm nhiệm **một trách nhiệm rõ ràng, tách biệt** — đây chính là hiện thực hóa trực tiếp của nguyên tắc **Single Responsibility** (Chương 2) ở cấp độ framework: thay vì nhét mọi logic (xác thực, validate, log, xử lý lỗi...) vào một chỗ, NestJS buộc lập trình viên đặt đúng logic vào đúng lớp có trách nhiệm tương ứng.
 
-### 5.1.2. Sơ đồ vòng đời request
+### 1.2. Sơ đồ vòng đời request
 
 ```mermaid
 flowchart TD
@@ -39,7 +39,7 @@ flowchart TD
     K --> J
 ```
 
-### 5.1.3. Vai trò tổng quan của từng lớp
+### 1.3. Vai trò tổng quan của từng lớp
 
 Bảng dưới đây là bản đồ tổng quan — chi tiết từng thành phần sẽ được trình bày ở các mục tiếp theo trong chương:
 
@@ -54,7 +54,7 @@ Bảng dưới đây là bản đồ tổng quan — chi tiết từng thành ph
 | 7 | **Interceptor (sau)** | Response cần được biến đổi hay ghi nhận gì trước khi trả về? | Log thời gian xử lý, định dạng lại response |
 | 8 | **Exception Filter** | Nếu có lỗi ở bất kỳ bước nào phía trên, phản hồi client ra sao? | Bắt lỗi, định dạng response lỗi thống nhất |
 
-### 5.1.4. Vì sao thứ tự này lại quan trọng
+### 1.4. Vì sao thứ tự này lại quan trọng
 
 Thứ tự các lớp không phải ngẫu nhiên — mỗi lớp được đặt trước lớp sau vì nó cần trả lời câu hỏi "rẻ hơn, sớm hơn" trước khi hệ thống tốn công sức cho các bước xử lý tốn kém hơn:
 
@@ -64,9 +64,9 @@ Thứ tự các lớp không phải ngẫu nhiên — mỗi lớp được đặ
 
 ---
 
-## 5.2. Module
+## 2. Module
 
-### 5.2.1. Bản chất
+### 2.1. Bản chất
 
 **Module** là đơn vị đóng gói một nhóm chức năng có liên quan chặt chẽ với nhau (ví dụ: mọi thứ liên quan đến "user" nằm trong `UserModule`). Về bản chất, Module là câu trả lời của NestJS cho vấn đề: khi ứng dụng lớn dần, làm sao để **giữ ranh giới rõ ràng giữa các domain nghiệp vụ khác nhau**, tránh tình trạng mọi thứ trộn lẫn vào một khối code duy nhất không thể tách rời.
 
@@ -87,15 +87,15 @@ import { UserService } from './user.service';
 export class UserModule {}
 ```
 
-### 5.2.2. Encapsulation ở cấp Module
+### 2.2. Encapsulation ở cấp Module
 
 **Điểm cốt lõi dễ bị bỏ qua**: mặc định, mọi Provider khai báo trong một Module chỉ **có thể nhìn thấy trong nội bộ Module đó**. Nếu `OrderModule` cần dùng `UserService`, `UserModule` phải chủ động `exports` nó ra, và `OrderModule` phải `imports` `UserModule` vào. Cơ chế này chính là **Encapsulation** (Chương 2) áp dụng ở quy mô toàn ứng dụng — mỗi Module tự quyết định phần nào của mình được phép dùng từ bên ngoài, phần nào là chi tiết nội bộ.
 
 ---
 
-## 5.3. Controller
+## 3. Controller
 
-### 5.3.1. Bản chất
+### 3.1. Bản chất
 
 Controller là điểm tiếp nhận request từ client sau khi đã đi qua Middleware, Guard, Interceptor và Pipe. Đúng theo nguyên tắc **Thin Controller** (Chương 3), Controller chỉ nên đóng vai trò **điều phối** — nhận dữ liệu đã được đảm bảo hợp lệ, gọi đến đúng Service, trả kết quả về — tuyệt đối không chứa logic nghiệp vụ.
 
@@ -121,9 +121,9 @@ export class UserController {
 
 ---
 
-## 5.4. Provider
+## 4. Provider
 
-### 5.4.1. Bản chất
+### 4.1. Bản chất
 
 **Provider** là khái niệm tổng quát nhất trong NestJS cho bất kỳ class nào có thể được **quản lý vòng đời và "tiêm" vào nơi khác** thông qua Dependency Injection (mục 5.6). Service là loại Provider phổ biến nhất, nhưng Provider còn bao gồm cả Repository, Factory, hay bất kỳ class tiện ích nào được đánh dấu `@Injectable()`.
 
@@ -138,9 +138,9 @@ export class UserRepository {
 
 ---
 
-## 5.5. Service
+## 5. Service
 
-### 5.5.1. Bản chất
+### 5.1. Bản chất
 
 Service là nơi **logic nghiệp vụ thực sự** được đặt — đúng phần "Fat Service" trong nguyên tắc Thin Controller - Fat Service đã trình bày ở Chương 3. Vì Service hoàn toàn không phụ thuộc vào khái niệm HTTP (không biết gì về `Request`, `Response`), nó có thể được gọi từ bất kỳ đâu: từ Controller, từ một Cron Job (Chương 7), từ một Queue Worker (Chương 7) — và quan trọng không kém, nó dễ dàng được kiểm thử độc lập (Unit Test, Chương 10) mà không cần giả lập một request HTTP giả.
 
@@ -159,9 +159,9 @@ export class UserService {
 
 ---
 
-## 5.6. Dependency Injection
+## 6. Dependency Injection
 
-### 5.6.1. Bản chất
+### 6.1. Bản chất
 
 Dependency Injection (DI) đã được giới thiệu ở Chương 2 như một Design Pattern hiện thực hóa nguyên tắc Dependency Inversion. NestJS đưa DI trở thành **cơ chế lõi của toàn bộ framework** thông qua **IoC Container** — một bộ quản lý tự động chịu trách nhiệm khởi tạo, lưu trữ, và cung cấp đúng instance của mỗi Provider cho nơi cần dùng đến nó.
 
@@ -179,11 +179,11 @@ export class UserController {
 }
 ```
 
-### 5.6.2. Phạm vi (Scope) của Provider
+### 6.2. Phạm vi (Scope) của Provider
 
 Mặc định, mỗi Provider trong NestJS có phạm vi **Singleton** — chỉ được khởi tạo **một lần duy nhất** cho toàn bộ vòng đời ứng dụng, và mọi nơi cần đến nó đều dùng chung một instance. Đây là lựa chọn hợp lý cho phần lớn trường hợp (tiết kiệm tài nguyên, tránh khởi tạo lặp lại không cần thiết), nhưng NestJS cũng cho phép cấu hình phạm vi `Request` (một instance mới cho mỗi request) hoặc `Transient` (một instance mới mỗi lần được inject) khi nghiệp vụ thực sự cần trạng thái riêng biệt.
 
-### 5.6.3. Lợi ích cốt lõi
+### 6.3. Lợi ích cốt lõi
 
 - **Giảm ràng buộc cứng**: Controller không tự tạo `new UserService()`, nên có thể dễ dàng thay thế bằng một implementation khác (ví dụ mock Service khi viết Unit Test ở Chương 10).
 - **Tái sử dụng instance**: nhờ phạm vi Singleton mặc định, tránh lãng phí tài nguyên khởi tạo lặp lại.
@@ -191,9 +191,9 @@ Mặc định, mỗi Provider trong NestJS có phạm vi **Singleton** — chỉ
 
 ---
 
-## 5.7. Middleware
+## 7. Middleware
 
-### 5.7.1. Bản chất
+### 7.1. Bản chất
 
 Middleware là lớp đầu tiên mà request đi qua, kế thừa trực tiếp khái niệm middleware của Express. Đặc điểm bản chất của Middleware là nó hoạt động **trước khi NestJS xác định route nào sẽ được gọi** — vì vậy Middleware phù hợp cho các tác vụ **hoàn toàn chung**, không cần biết ngữ cảnh cụ thể của route đích (ví dụ: ghi log mọi request, đọc thông tin cơ bản từ header).
 
@@ -218,9 +218,9 @@ export class AppModule implements NestModule {
 
 ---
 
-## 5.8. Pipe
+## 8. Pipe
 
-### 5.8.1. Bản chất
+### 8.1. Bản chất
 
 Pipe đứng ngay trước Controller, với trách nhiệm duy nhất: đảm bảo dữ liệu đi vào Controller **đã đúng định dạng và đã được biến đổi về đúng kiểu mong muốn** — đây chính là điểm triển khai cụ thể của DTO Validation đã trình bày sâu ở Chương 6.
 
@@ -245,9 +245,9 @@ app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
 
 ---
 
-## 5.9. Guard
+## 9. Guard
 
-### 5.9.1. Bản chất
+### 9.1. Bản chất
 
 Guard trả lời chính xác một câu hỏi: **"request này có được phép đi tiếp hay không?"** — hiện thực hóa cả Authentication lẫn Authorization đã trình bày ở Chương 8. Guard được đặt trước Interceptor và Pipe vì lý do đã giải thích ở mục 5.1: không nên tốn công xử lý dữ liệu cho một request chưa có quyền truy cập.
 
@@ -271,9 +271,9 @@ getProfile() {
 
 ---
 
-## 5.10. Interceptor
+## 10. Interceptor
 
-### 5.10.1. Bản chất
+### 10.1. Bản chất
 
 Interceptor là thành phần linh hoạt nhất trong chuỗi xử lý, vì nó **bao quanh** toàn bộ quá trình Controller xử lý — có thể can thiệp cả **trước khi** Controller chạy lẫn **sau khi** Controller đã trả về kết quả, nhờ dựa trên mô hình RxJS Observable.
 
@@ -301,9 +301,9 @@ export class LoggingInterceptor implements NestInterceptor {
 
 ---
 
-## 5.11. Exception Filter
+## 11. Exception Filter
 
-### 5.11.1. Bản chất
+### 11.1. Bản chất
 
 Exception Filter là "lưới an toàn" cuối cùng — như đã thấy trong sơ đồ ở mục 5.1, bất kể lỗi phát sinh từ lớp nào (Guard từ chối, Pipe validate thất bại, Service ném lỗi nghiệp vụ, hay lỗi hệ thống không lường trước), request đều được dẫn về đây để **định dạng lại thành một response lỗi thống nhất**, thay vì mỗi nơi tự trả lỗi theo cấu trúc riêng.
 
@@ -330,9 +330,9 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 
 ---
 
-## 5.12. Custom Decorator
+## 12. Custom Decorator
 
-### 5.12.1. Bản chất
+### 12.1. Bản chất
 
 **Decorator** là tính năng của TypeScript cho phép gắn thêm metadata hoặc hành vi vào class, method, property mà không thay đổi logic gốc — bản thân `@Controller`, `@Injectable`, `@Get` đều là decorator do NestJS cung cấp sẵn. **Custom Decorator** cho phép lập trình viên tự định nghĩa decorator riêng nhằm loại bỏ code lặp lại rải rác khắp nơi.
 
@@ -357,9 +357,9 @@ getMe(@CurrentUser() user: User) {
 
 ---
 
-## 5.13. Configuration Module
+## 13. Configuration Module
 
-### 5.13.1. Bản chất
+### 13.1. Bản chất
 
 Ứng dụng backend cần đọc các giá trị cấu hình thay đổi theo môi trường (địa chỉ database, secret key, cổng chạy server...) mà **không được phép hard-code trực tiếp trong source code** — vừa để bảo mật (không lộ secret trong mã nguồn), vừa để cùng một codebase có thể chạy đúng ở nhiều môi trường khác nhau (dev, staging, production) chỉ bằng cách thay đổi cấu hình. `@nestjs/config` là module chính thức của NestJS giải quyết bài toán này, đọc giá trị từ file `.env`.
 
